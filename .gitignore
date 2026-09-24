@@ -1,0 +1,14 @@
+# Safety backup folder
+_before_header_footer_refinement/
+
+# OS & Editor temporary files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+*.bak
+*~
+
+# Node / local tooling
+node_modules/
+.gemini/
