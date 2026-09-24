@@ -1,30 +1,199 @@
 // Quran & Science — Shared Application Script
 
-function toggleMenu() {
+function openMobileDrawer() {
   const nav = document.getElementById('mobileNav');
   const btn = document.getElementById('menuBtn');
+  const backdrop = document.getElementById('mobileDrawerBackdrop');
   if (!nav || !btn) return;
-  nav.classList.toggle('open');
-  btn.setAttribute('aria-expanded', nav.classList.contains('open') ? 'true' : 'false');
+
+  const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+  if (scrollbarWidth > 0) {
+    document.body.style.paddingRight = scrollbarWidth + 'px';
+  }
+  document.documentElement.classList.add('drawer-scroll-lock');
+  document.body.classList.add('drawer-scroll-lock');
+
+  nav.classList.add('open');
+  nav.setAttribute('aria-hidden', 'false');
+  if (backdrop) backdrop.classList.add('open');
+
+  btn.classList.add('is-open');
+  btn.setAttribute('aria-expanded', 'true');
+
+  const closeBtn = document.getElementById('mobileDrawerClose');
+  if (closeBtn) {
+    setTimeout(() => {
+      if (nav.classList.contains('open')) {
+        closeBtn.focus({ preventScroll: true });
+      }
+    }, 60);
+  }
+}
+
+function closeMobileDrawer(returnFocus) {
+  const nav = document.getElementById('mobileNav');
+  const btn = document.getElementById('menuBtn');
+  const backdrop = document.getElementById('mobileDrawerBackdrop');
+  if (!nav) return;
+
+  const wasOpen = nav.classList.contains('open');
+  nav.classList.remove('open');
+  nav.setAttribute('aria-hidden', 'true');
+  if (backdrop) backdrop.classList.remove('open');
+
+  if (btn) {
+    btn.classList.remove('is-open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+
+  document.documentElement.classList.remove('drawer-scroll-lock');
+  document.body.classList.remove('drawer-scroll-lock');
+  document.body.style.paddingRight = '';
+
+  if (returnFocus && wasOpen && btn) {
+    btn.focus({ preventScroll: true });
+  }
+}
+
+function toggleMenu() {
+  const nav = document.getElementById('mobileNav');
+  if (!nav) return;
+  if (nav.classList.contains('open')) {
+    closeMobileDrawer(true);
+  } else {
+    openMobileDrawer();
+  }
 }
 
 function toggleMobileDropdown(id) {
   const dd = document.getElementById(id);
   if (!dd) return;
-  dd.classList.toggle('open');
+  const isOpen = dd.classList.toggle('open');
   const btn = dd.querySelector('.mobile-dropdown-btn');
-  if (btn) btn.setAttribute('aria-expanded', dd.classList.contains('open') ? 'true' : 'false');
+  if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 }
 
-// Close mobile navigation when non-dropdown links are clicked
-document.querySelectorAll('.mobile-nav a:not(.mobile-dropdown-btn)').forEach(a => {
-  a.addEventListener('click', () => {
-    const nav = document.getElementById('mobileNav');
-    if (nav) nav.classList.remove('open');
-    const btn = document.getElementById('menuBtn');
-    if (btn) btn.setAttribute('aria-expanded', 'false');
+(function initMobileSlideDrawer() {
+  const nav = document.getElementById('mobileNav');
+  const btn = document.getElementById('menuBtn');
+  if (!nav || !btn) return;
+
+  // Upgrade hamburger button icon to crisp SVG while preserving aria attributes
+  btn.setAttribute('aria-controls', 'mobileNav');
+  btn.setAttribute('aria-expanded', 'false');
+  btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></svg>';
+
+  // Create backdrop overlay if not already present
+  let backdrop = document.getElementById('mobileDrawerBackdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.id = 'mobileDrawerBackdrop';
+    backdrop.className = 'mobile-drawer-backdrop';
+    backdrop.setAttribute('aria-hidden', 'true');
+    backdrop.addEventListener('click', () => closeMobileDrawer(false));
+  }
+
+  // Upgrade #mobileNav internal structure into Header + Scrollable Body + Footer CTA
+  if (!nav.querySelector('.mobile-drawer-head')) {
+    const head = document.createElement('div');
+    head.className = 'mobile-drawer-head';
+    head.innerHTML =
+      '<a class="mobile-drawer-brand" href="index.html" aria-label="Quran &amp; Science Online Learning Academy">' +
+        '<img class="mobile-drawer-logo" src="assets/images/logo/logo.png" alt="Quran &amp; Science Online Learning Academy" width="166" height="93">' +
+      '</a>' +
+      '<button type="button" class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation menu">' +
+        '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
+      '</button>';
+
+    const body = document.createElement('div');
+    body.className = 'mobile-drawer-body';
+
+    const foot = document.createElement('div');
+    foot.className = 'mobile-drawer-foot';
+
+    const children = Array.from(nav.children);
+    children.forEach(child => {
+      if (child.tagName === 'A' && child.classList.contains('btn-gold')) {
+        foot.appendChild(child);
+      } else {
+        body.appendChild(child);
+      }
+    });
+
+    const footNote = document.createElement('p');
+    footNote.className = 'mobile-drawer-foot-note';
+    footNote.textContent = '3-Day Free Trial • Flexible global timings';
+    foot.appendChild(footNote);
+
+    // Wrap .mobile-dropdown-menu in .mobile-dropdown-collapse for smooth height animation
+    const dd = body.querySelector('#quranMobileNav');
+    if (dd) {
+      const ddMenu = dd.querySelector('.mobile-dropdown-menu');
+      const ddBtn = dd.querySelector('.mobile-dropdown-btn');
+      dd.classList.remove('open');
+      if (ddBtn) ddBtn.setAttribute('aria-expanded', 'false');
+      if (ddMenu && !ddMenu.parentElement.classList.contains('mobile-dropdown-collapse')) {
+        const collapseWrap = document.createElement('div');
+        collapseWrap.className = 'mobile-dropdown-collapse';
+        dd.insertBefore(collapseWrap, ddMenu);
+        collapseWrap.appendChild(ddMenu);
+      }
+
+      // Highlight active Quran subpage link if on a Quran learning page
+      const currentPath = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+      const quranPagesMap = {
+        'learn-quran-online.html': 'learn-quran-online.html',
+        'para-1.html': 'learn-quran-online.html',
+        'para-2.html': 'learn-quran-online.html',
+        'para-3.html': 'learn-quran-online.html',
+        'kalimas.html': 'kalimas.html',
+        'namaz.html': 'namaz.html',
+        'duas.html': 'duas.html',
+        'noorani-qaida.html': 'noorani-qaida.html'
+      };
+      if (quranPagesMap[currentPath] && ddMenu) {
+        if (ddBtn) ddBtn.classList.add('active');
+        ddMenu.querySelectorAll('a').forEach(link => {
+          const href = (link.getAttribute('href') || '').toLowerCase();
+          if (href === quranPagesMap[currentPath]) {
+            link.classList.add('active');
+          }
+        });
+      }
+    }
+
+    nav.innerHTML = '';
+    nav.appendChild(head);
+    nav.appendChild(body);
+    nav.appendChild(foot);
+  }
+
+  nav.setAttribute('role', 'dialog');
+  nav.setAttribute('aria-modal', 'true');
+  nav.setAttribute('aria-label', 'Mobile navigation');
+  nav.setAttribute('aria-hidden', 'true');
+
+  // Portal backdrop and drawer directly to document.body to avoid .header backdrop-filter clipping
+  document.body.appendChild(backdrop);
+  document.body.appendChild(nav);
+
+  const closeBtn = document.getElementById('mobileDrawerClose');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => closeMobileDrawer(true));
+  }
+
+  // Close drawer when any navigation link (excluding the Quran accordion toggle button) is clicked
+  nav.querySelectorAll('a[href]').forEach(a => {
+    a.addEventListener('click', () => closeMobileDrawer(false));
   });
-});
+
+  // Auto-close drawer if window is resized to desktop (> 1024px)
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 1024 && nav.classList.contains('open')) {
+      closeMobileDrawer(false);
+    }
+  });
+})();
 
 // Desktop Quran dropdown interaction
 document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
@@ -45,7 +214,7 @@ document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
   });
 });
 
-// Close open dropdowns on outside click or Esc
+// Close open dropdowns on outside click or Esc, and trap focus in mobile drawer
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.nav-dropdown')) {
     document.querySelectorAll('.nav-dropdown.open').forEach(d => {
@@ -57,13 +226,36 @@ document.addEventListener('click', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
+  const nav = document.getElementById('mobileNav');
+  const isDrawerOpen = nav && nav.classList.contains('open');
+
   if (e.key === 'Escape') {
+    if (isDrawerOpen) {
+      e.preventDefault();
+      closeMobileDrawer(true);
+      return;
+    }
     document.querySelectorAll('.nav-dropdown.open').forEach(d => {
       d.classList.remove('open');
       const toggle = d.querySelector('.dropdown-toggle');
       if (toggle) toggle.setAttribute('aria-expanded', 'false');
     });
     closeLightbox();
+  } else if (e.key === 'Tab' && isDrawerOpen) {
+    const focusables = Array.from(
+      nav.querySelectorAll('button:not([disabled]), a[href]')
+    ).filter(el => el.offsetParent !== null);
+    if (focusables.length > 0) {
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
   }
 });
 
