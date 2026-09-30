@@ -12,3 +12,4 @@ Desktop.ini
 # Node / local tooling
 node_modules/
 .gemini/
+*.zip
