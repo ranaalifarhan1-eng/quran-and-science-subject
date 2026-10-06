@@ -1,5 +1,7 @@
-# Safety backup folder
+# Safety backup folders
 _before_header_footer_refinement/
+_before_academic_tutoring_revision/
+_before_*/
 
 # OS & Editor temporary files
 .DS_Store

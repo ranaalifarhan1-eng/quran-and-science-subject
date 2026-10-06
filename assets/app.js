@@ -125,9 +125,9 @@ function toggleMobileDropdown(id) {
     footNote.textContent = '3-Day Free Trial • Flexible global timings';
     foot.appendChild(footNote);
 
-    // Wrap .mobile-dropdown-menu in .mobile-dropdown-collapse for smooth height animation
-    const dd = body.querySelector('#quranMobileNav');
-    if (dd) {
+    // Wrap all .mobile-dropdown-menu in .mobile-dropdown-collapse for smooth height animation
+    const currentPath = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    body.querySelectorAll('.mobile-dropdown').forEach(dd => {
       const ddMenu = dd.querySelector('.mobile-dropdown-menu');
       const ddBtn = dd.querySelector('.mobile-dropdown-btn');
       dd.classList.remove('open');
@@ -138,9 +138,13 @@ function toggleMobileDropdown(id) {
         dd.insertBefore(collapseWrap, ddMenu);
         collapseWrap.appendChild(ddMenu);
       }
+    });
 
-      // Highlight active Quran subpage link if on a Quran learning page
-      const currentPath = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    // Highlight active Quran subpage link if on a Quran learning page
+    const quranDD = body.querySelector('#quranMobileNav');
+    if (quranDD) {
+      const ddMenu = quranDD.querySelector('.mobile-dropdown-menu');
+      const ddBtn = quranDD.querySelector('.mobile-dropdown-btn');
       const quranPagesMap = {
         'learn-quran-online.html': 'learn-quran-online.html',
         'para-1.html': 'learn-quran-online.html',
@@ -153,26 +157,26 @@ function toggleMobileDropdown(id) {
         'para-8.html': 'learn-quran-online.html',
         'para-9.html': 'learn-quran-online.html',
         'para-10.html': 'learn-quran-online.html',
-    'para-11.html': 'learn-quran-online.html',
-    'para-12.html': 'learn-quran-online.html',
-    'para-13.html': 'learn-quran-online.html',
-    'para-14.html': 'learn-quran-online.html',
-    'para-15.html': 'learn-quran-online.html',
-    'para-16.html': 'learn-quran-online.html',
-    'para-17.html': 'learn-quran-online.html',
-    'para-18.html': 'learn-quran-online.html',
-    'para-19.html': 'learn-quran-online.html',
-    'para-20.html': 'learn-quran-online.html',
-    'para-21.html': 'learn-quran-online.html',
-    'para-22.html': 'learn-quran-online.html',
-    'para-23.html': 'learn-quran-online.html',
-    'para-24.html': 'learn-quran-online.html',
-    'para-25.html': 'learn-quran-online.html',
-    'para-26.html': 'learn-quran-online.html',
-    'para-27.html': 'learn-quran-online.html',
-    'para-28.html': 'learn-quran-online.html',
-    'para-29.html': 'learn-quran-online.html',
-    'para-30.html': 'learn-quran-online.html',
+        'para-11.html': 'learn-quran-online.html',
+        'para-12.html': 'learn-quran-online.html',
+        'para-13.html': 'learn-quran-online.html',
+        'para-14.html': 'learn-quran-online.html',
+        'para-15.html': 'learn-quran-online.html',
+        'para-16.html': 'learn-quran-online.html',
+        'para-17.html': 'learn-quran-online.html',
+        'para-18.html': 'learn-quran-online.html',
+        'para-19.html': 'learn-quran-online.html',
+        'para-20.html': 'learn-quran-online.html',
+        'para-21.html': 'learn-quran-online.html',
+        'para-22.html': 'learn-quran-online.html',
+        'para-23.html': 'learn-quran-online.html',
+        'para-24.html': 'learn-quran-online.html',
+        'para-25.html': 'learn-quran-online.html',
+        'para-26.html': 'learn-quran-online.html',
+        'para-27.html': 'learn-quran-online.html',
+        'para-28.html': 'learn-quran-online.html',
+        'para-29.html': 'learn-quran-online.html',
+        'para-30.html': 'learn-quran-online.html',
         'kalimas.html': 'kalimas.html',
         'namaz.html': 'namaz.html',
         'duas.html': 'duas.html',
@@ -186,6 +190,16 @@ function toggleMobileDropdown(id) {
             link.classList.add('active');
           }
         });
+      }
+    }
+
+    // Highlight active Academic Tutoring subpage if on academic page
+    const academicDD = body.querySelector('#academicMobileNav');
+    if (academicDD) {
+      const ddMenu = academicDD.querySelector('.mobile-dropdown-menu');
+      const ddBtn = academicDD.querySelector('.mobile-dropdown-btn');
+      if (currentPath === 'academic-tutoring.html') {
+        if (ddBtn) ddBtn.classList.add('active');
       }
     }
 

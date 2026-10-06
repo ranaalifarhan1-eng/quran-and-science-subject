@@ -16,15 +16,15 @@ body .container,.container{width:100%;max-width:var(--max);margin-left:auto;marg
 .topbar strong{color:var(--gold-400);font-weight:700}
 
 .header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #e8eee9;box-shadow:0 6px 24px rgba(20,43,29,.045);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.5}
-.header .nav-wrap{height:86px;display:grid;grid-template-columns:minmax(auto,1fr) auto minmax(auto,1fr);align-items:center;gap:24px}
-.header .brand{justify-self:start;display:inline-flex;align-items:center;height:72px;overflow:hidden;min-width:0;flex-shrink:0}
+.header .nav-wrap{height:86px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.header .brand{display:inline-flex;align-items:center;height:72px;overflow:hidden;min-width:0;flex-shrink:0}
 .header .brand-logo{width:212px;max-width:none;height:auto;object-fit:contain;display:block;flex-shrink:0;transform:translateY(1px)}
 .brand-mark{width:44px;height:44px;border-radius:16px;background:var(--brand-900);color:var(--gold-400);display:grid;place-items:center;box-shadow:var(--shadow)}.brand-mark svg{width:25px}.brand-name{font-weight:850;font-size:20px;letter-spacing:-.025em;line-height:1.05}.brand-tag{font-size:10px;color:#718078;letter-spacing:.04em;margin-top:3px}
-.header .nav{justify-self:center;display:flex;align-items:center;gap:30px;font-size:14px;font-weight:700;color:#38483e;white-space:nowrap}
+.header .nav{margin:0 auto;display:flex;align-items:center;gap:22px;font-size:13.8px;font-weight:700;color:#38483e;white-space:nowrap}
 .header .nav > a{position:relative;padding:6px 0;transition:color .2s ease;color:#38483e;font-weight:700;line-height:1.4}
 .header .nav > a:hover,.header .nav > a.active{color:var(--brand-800)}
 .header .nav > a.active::after,.header .dropdown-toggle.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2.5px;border-radius:999px;background:var(--gold-500)}
-.header .nav-cta{justify-self:end;display:flex;align-items:center;gap:10px}
+.header .nav-cta{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:12px;padding:13px 20px;font-weight:800;font-size:13px;line-height:1.2;border:1px solid transparent;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;text-decoration:none}
 .btn:hover{transform:translateY(-1px)}
 .btn-gold{background:var(--gold-400);color:var(--brand-950);box-shadow:0 12px 28px -18px #7a5b07}
@@ -72,7 +72,7 @@ html.drawer-scroll-lock,body.drawer-scroll-lock{overflow:hidden !important}
 
 /* Site-Wide Footer System */
 .footer{background:linear-gradient(180deg,#092c17 0%,#061f10 100%);color:#d5e6dc;border-top:2px solid rgba(242,200,75,.28);margin-top:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.6}
-.footer .footer-main{padding:56px 0 42px;display:grid;grid-template-columns:1.35fr .85fr .95fr 1.15fr;gap:38px;align-items:start}
+.footer .footer-main{padding:56px 0 42px;display:grid;grid-template-columns:1.3fr 1fr 1.05fr 1fr;gap:36px;align-items:start}
 .footer .footer-logo-link{display:inline-flex;align-items:center;justify-content:flex-start;background:transparent;padding:0;height:68px;overflow:hidden;border:0;box-shadow:none;margin-bottom:14px;transition:transform .2s ease,opacity .2s ease}
 .footer .footer-logo-link:hover{transform:translateY(-2px);opacity:.95}
 .footer .footer-logo{width:214px;max-width:none;height:auto;object-fit:contain;display:block;flex-shrink:0;transform:translateY(1px);filter:drop-shadow(1px 0 0 rgba(255,255,255,.94)) drop-shadow(-1px 0 0 rgba(255,255,255,.94)) drop-shadow(0 1px 0 rgba(255,255,255,.94)) drop-shadow(0 -1px 0 rgba(255,255,255,.94))}
@@ -90,8 +90,14 @@ html.drawer-scroll-lock,body.drawer-scroll-lock{overflow:hidden !important}
 .footer .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding:18px 0;font-size:12.5px;color:#9ab2a3;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .footer .footer-note{color:#d4e5db;font-weight:600}
 
-@media(max-width:1180px){
-  .header .nav{gap:24px;font-size:13.5px}
+@media(max-width:1220px){
+  .header .nav{gap:17px;font-size:13.2px}
+  .header .brand-logo{width:192px}
+}
+@media(max-width:1120px){
+  .header .nav{gap:13px;font-size:12.8px}
+  .header .brand-logo{width:176px}
+  .header .nav-cta .btn-gold{height:40px;padding:0 16px;font-size:12.8px}
 }
 @media(max-width:1024px){
   body .container,.container{padding-left:24px;padding-right:24px}
@@ -450,5 +456,38 @@ html.drawer-scroll-lock,body.drawer-scroll-lock{overflow:hidden !important}
   .quran-pages-container.view-grid{grid-template-columns:1fr;gap:10px}
 }
 
+/* Academic Tutoring Hub Card Styles */
+.academic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.academic-card{background:#fff;border:1px solid #e1ece4;border-radius:20px;padding:28px 24px;box-shadow:var(--shadow-card);display:flex;flex-direction:column;transition:transform .24s ease,box-shadow .24s ease,border-color .24s ease}
+.academic-card:hover{transform:translateY(-5px);box-shadow:0 22px 46px -22px rgba(11,77,36,.28);border-color:#a5d5b5}
+.academic-card-badge{align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-800);background:var(--brand-50);border:1px solid #cde9d7;padding:5px 11px;border-radius:999px;margin-bottom:16px}
+.academic-card h3{font-size:19px;line-height:1.28;margin:0 0 10px;color:#132018}
+.academic-card p{font-size:13px;color:#5a6b61;line-height:1.6;margin:0 0 18px;flex:1}
+.academic-card-features{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:8px;font-size:12.5px;color:#47574d}
+.academic-card-features li{display:flex;align-items:center;gap:8px}
+.academic-card-features li:before{content:"✓";color:var(--brand-700);font-weight:900}
+.academic-card .btn{width:100%;text-align:center;justify-content:center}
+@media(max-width:1020px){
+  .academic-grid{grid-template-columns:repeat(2,1fr);gap:20px}
+}
+@media(max-width:680px){
+  .academic-grid{grid-template-columns:1fr;gap:18px}
+}
 
-
+/* Homepage Two-Pathway Section */
+.pathway-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px}
+.pathway-card{background:#fff;border:1.5px solid #dce8df;border-radius:22px;padding:32px 30px;box-shadow:var(--shadow-card);display:flex;flex-direction:column;position:relative;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.pathway-card:hover{transform:translateY(-5px);box-shadow:0 24px 48px -24px rgba(7,56,26,.32);border-color:#8ec9a0}
+.pathway-card.featured{border-color:#dfae21;background:linear-gradient(180deg,#ffffff 0%,#fbfdf9 100%)}
+.pathway-tag{align-self:flex-start;font-size:11px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-800);background:var(--brand-50);border:1px solid #c9ebd4;padding:5px 12px;border-radius:999px;margin-bottom:14px}
+.pathway-card h3{font-size:22px;margin:0 0 12px;color:#111f16;font-weight:800}
+.pathway-card p{font-size:13.5px;color:#5a6b61;line-height:1.65;margin:0 0 20px;flex:1}
+.pathway-list{list-style:none;padding:0;margin:0 0 24px;display:grid;gap:9px;font-size:13px;color:#3b4d42}
+.pathway-list li{display:flex;align-items:center;gap:10px}
+.pathway-list li i{font-style:normal;width:20px;height:20px;border-radius:50%;background:var(--brand-100);color:var(--brand-800);display:grid;place-items:center;font-size:11px;font-weight:900}
+.pathway-card .btn{align-self:flex-start}
+@media(max-width:768px){
+  .pathway-grid{grid-template-columns:1fr;gap:20px}
+  .pathway-card{padding:26px 22px}
+  .pathway-card .btn{width:100%}
+}
