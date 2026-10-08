@@ -17,6 +17,438 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css">
+  <style>
+    /* Courses Page — Refined Clean Experience */
+    .pathways-section {
+      padding: 44px 0 24px;
+    }
+    .pathway-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    .pathway-card {
+      background: #ffffff;
+      border: 1px solid #e2eae4;
+      border-radius: 22px;
+      padding: 34px 30px;
+      box-shadow: 0 10px 30px -18px rgba(11, 77, 36, 0.16);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+      position: relative;
+    }
+    .pathway-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px -20px rgba(11, 77, 36, 0.22);
+      border-color: #bad3c2;
+    }
+    .pathway-card.pathway-quran {
+      border-top: 4px solid var(--brand-700);
+    }
+    .pathway-card.pathway-academic {
+      border-top: 4px solid var(--gold-500);
+    }
+    .pathway-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      align-self: flex-start;
+    }
+    .pathway-quran .pathway-badge {
+      background: var(--brand-50);
+      color: var(--brand-800);
+      border: 1px solid #ccebd7;
+    }
+    .pathway-academic .pathway-badge {
+      background: var(--gold-50);
+      color: #8c6407;
+      border: 1px solid #fae6a6;
+    }
+    .pathway-card h2 {
+      font-size: clamp(1.35rem, 2vw, 1.75rem);
+      color: #111b15;
+      margin: 0 0 10px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .pathway-card p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #5d6b63;
+      margin: 0 0 24px;
+      flex: 1;
+    }
+    .pathway-card .btn {
+      align-self: flex-start;
+    }
+    @media (max-width: 820px) {
+      .pathway-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .pathway-card {
+        padding: 26px 22px;
+      }
+      .pathway-card .btn {
+        width: 100%;
+      }
+    }
+
+    /* Segmented Tab Control */
+    #programs-catalog,
+    #quran-learning,
+    #academic-tutoring {
+      scroll-margin-top: 96px;
+    }
+    .tab-switcher-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0 34px;
+    }
+    .segmented-control {
+      display: inline-flex;
+      align-items: center;
+      background: #f1f6f2;
+      border: 1px solid #dce8df;
+      border-radius: 999px;
+      padding: 5px;
+      gap: 6px;
+      max-width: 100%;
+    }
+    .segment-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 28px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 750;
+      color: #4b5d51;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .segment-btn:hover {
+      color: var(--brand-900);
+    }
+    .segment-btn.active {
+      background: var(--brand-900);
+      color: #ffffff;
+      box-shadow: 0 4px 16px -2px rgba(11, 77, 36, 0.35);
+    }
+    @media (max-width: 520px) {
+      .tab-switcher-wrap {
+        margin: 14px 0 26px;
+      }
+      .segmented-control {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        padding: 4px;
+        gap: 4px;
+      }
+      .segment-btn {
+        padding: 10px 10px;
+        font-size: 12.5px;
+        gap: 5px;
+      }
+      .segment-btn svg {
+        width: 15px;
+        height: 15px;
+      }
+    }
+
+    /* Program Cards Consistency */
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+    .course {
+      border: 1px solid #e4ece6;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .course:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 38px -20px rgba(11, 77, 36, 0.22);
+      border-color: #bad3c2;
+    }
+    .course .image {
+      height: 190px;
+      background: #eef3ef;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .course .image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+    }
+    .course:hover img {
+      transform: scale(1.035);
+    }
+    .course .body {
+      padding: 22px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .course .tag {
+      display: inline-flex;
+      align-self: flex-start;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--brand-800);
+      background: var(--brand-50);
+      border: 1px solid #ccebd7;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .course h3 {
+      font-size: 17px;
+      line-height: 1.3;
+      margin: 0 0 8px;
+      color: #17211b;
+      font-weight: 800;
+    }
+    .course p {
+      font-size: 13px;
+      line-height: 1.55;
+      color: #617066;
+      margin: 0 0 18px;
+      flex: 1;
+    }
+    .course .card-btn {
+      margin-top: auto;
+      width: 100%;
+      padding: 10px 16px;
+      font-size: 13px;
+      border-radius: 10px;
+    }
+
+    /* Academic Cards */
+    .academic-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+    .academic-card {
+      background: #ffffff;
+      border: 1px solid #e4ece6;
+      border-radius: 20px;
+      padding: 26px 24px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+    .academic-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 36px -18px rgba(11, 77, 36, 0.2);
+      border-color: #bad3c2;
+    }
+    .academic-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .academic-num {
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--gold-50);
+      color: #8c6407;
+      font-weight: 850;
+      font-size: 13px;
+      border: 1px solid #fae6a6;
+    }
+    .academic-pill {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--brand-800);
+      background: var(--brand-50);
+      border: 1px solid #ccebd7;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .academic-card h3 {
+      font-size: 18px;
+      line-height: 1.3;
+      margin: 0 0 10px;
+      color: #17211b;
+      font-weight: 800;
+    }
+    .academic-card p {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #617066;
+      margin: 0 0 20px;
+      flex: 1;
+    }
+    .academic-card .card-btn {
+      margin-top: auto;
+      width: 100%;
+      padding: 10px 16px;
+      font-size: 13px;
+      border-radius: 10px;
+    }
+
+    /* Subjects We Support Compact Strip */
+    .academic-support-strip {
+      margin-top: 28px;
+      padding: 18px 24px;
+      background: #f8faf9;
+      border: 1px solid #e2eae4;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .support-strip-left strong {
+      display: block;
+      font-size: 13.5px;
+      color: #1a2a20;
+    }
+    .support-strip-left span {
+      font-size: 12px;
+      color: #69786f;
+    }
+    .support-strip-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .support-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #d4e2d8;
+      color: #1e3326;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .academic-disclaimer {
+      font-size: 12px;
+      color: #6f7f75;
+      text-align: center;
+      margin: 12px auto 0;
+      max-width: 680px;
+    }
+
+    /* Responsive Grid Controls */
+    @media (max-width: 1024px) {
+      .course-grid,
+      .academic-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+      }
+    }
+    @media (max-width: 680px) {
+      .course-grid,
+      .academic-grid {
+        grid-template-columns: 1fr;
+      }
+      .academic-support-strip {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 18px;
+      }
+    }
+
+    /* 3-Step How It Works Strip */
+    .how-it-works-section {
+      background: #f9fbf9;
+      border-top: 1px solid #edf3ef;
+      border-bottom: 1px solid #edf3ef;
+      padding: 56px 0;
+    }
+    .steps-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+    .step-card {
+      background: #ffffff;
+      border: 1px solid #e4ece6;
+      border-radius: 18px;
+      padding: 26px 22px;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.2s ease;
+    }
+    .step-card:hover {
+      transform: translateY(-3px);
+    }
+    .step-card .step-num {
+      display: inline-grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--brand-50);
+      color: var(--brand-800);
+      font-weight: 850;
+      font-size: 13px;
+      border: 1px solid #ccebd7;
+      margin-bottom: 14px;
+    }
+    .step-card h3 {
+      font-size: 16px;
+      margin: 0 0 8px;
+      color: #17211b;
+      font-weight: 800;
+    }
+    .step-card p {
+      font-size: 12.5px;
+      color: #647369;
+      margin: 0;
+      line-height: 1.6;
+    }
+    @media (max-width: 1024px) {
+      .steps-3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 680px) {
+      .steps-3 {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .how-it-works-section {
+        padding: 44px 0;
+      }
+    }
+  </style>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -111,218 +543,261 @@
   </header>
 
   <main>
+    <!-- 1. HERO — CONCISE & CLEAN -->
     <section class="page-hero center">
       <div class="container">
         <div class="breadcrumb"><a href="index.html">Home</a> / All Programs</div>
-        <span class="eyebrow">Complete Catalogue</span>
-        <h1 class="title-xl" style="max-width:920px;margin-left:auto;margin-right:auto">
-          <span class="hero-line">All Programs</span>
-          <span class="hero-line green">Quran &amp; Academic Learning.</span>
+        <span class="eyebrow">All Programs</span>
+        <h1 class="title-xl" style="max-width:840px;margin-left:auto;margin-right:auto">
+          Choose the right learning path for you
         </h1>
-        <p class="lead">Explore carefully structured learning paths for beginners, children, adults and advanced students, with dedicated Quran studies and personalized academic tutoring in Mathematics, Science and school subjects.</p>
-        <div class="pill-grid" style="justify-content:center;margin-top:24px">
-          <a class="pill" href="#quran-learning">Quran &amp; Islamic Learning</a>
-          <a class="pill" href="#academic-tutoring">Academic Tutoring</a>
+        <p class="lead" style="max-width:640px">
+          Explore personalized Quran learning and academic tutoring programs designed around each student's level, goals and schedule.
+        </p>
+      </div>
+    </section>
+
+    <!-- 2. TWO PRIMARY PATHWAY CARDS -->
+    <section class="pathways-section">
+      <div class="container">
+        <div class="pathway-grid">
+          <!-- Pathway 1: Quran -->
+          <div class="pathway-card pathway-quran">
+            <span class="pathway-badge">Pathway 01</span>
+            <h2>Quran &amp; Islamic Learning</h2>
+            <p>Quran reading, Noorani Qaida, Tajweed, memorization and essential Islamic learning through personalized online classes.</p>
+            <button type="button" class="btn btn-green" onclick="switchProgramTab('quran', true)">
+              Explore Quran Programs ↓
+            </button>
+          </div>
+
+          <!-- Pathway 2: Academic -->
+          <div class="pathway-card pathway-academic">
+            <span class="pathway-badge">Pathway 02</span>
+            <h2>Academic Tutoring</h2>
+            <p>Personalized support for O Level, IGCSE, GCSE, A Level and students up to Grade 12 in Pakistan, including Mathematics, Science and other available subjects.</p>
+            <button type="button" class="btn btn-gold" onclick="switchProgramTab('academic', true)">
+              Explore Academic Programs ↓
+            </button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 1: QURAN FOUNDATION -->
+    <!-- ANCHORS FOR CROSS-SITE COMPATIBILITY -->
     <div id="quran-learning"></div>
-    <section class="section" id="quran-foundation">
+    <div id="academic-tutoring"></div>
+
+    <!-- 3. SEGMENTED SWITCHER & PROGRAM CATALOG -->
+    <section class="section" id="programs-catalog" style="padding-top:20px;padding-bottom:70px">
       <div class="container">
-        <div class="category-head">
-          <div>
-            <span class="eyebrow">Quran Foundation</span>
-            <h2 class="title-lg">Build a strong and confident starting point.</h2>
+        <!-- Segmented Tab Switcher -->
+        <div class="tab-switcher-wrap">
+          <div class="segmented-control" role="tablist" aria-label="Program categories">
+            <button type="button" class="segment-btn active" id="tab-btn-quran" role="tab" aria-selected="true" aria-controls="panel-quran" onclick="switchProgramTab('quran', false)">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              <span>Quran Learning</span>
+            </button>
+            <button type="button" class="segment-btn" id="tab-btn-academic" role="tab" aria-selected="false" aria-controls="panel-academic" onclick="switchProgramTab('academic', false)">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              <span>Academic Tutoring</span>
+            </button>
           </div>
-          <p class="sublead">Suitable for children, beginners, reverts and adults who want to master reading fundamentals.</p>
         </div>
-        <div class="course-grid">
-          <div class="course">
-            <div class="image"><img src="assets/images/courses/Cozy Arabic Learning with Noorani Qaida.png" alt="Child learning Arabic letters with Noorani Qaida" width="1448" height="1086" loading="lazy"></div>
-            <div class="body">
-              <span class="tag">Beginner</span>
-              <h3>Noorani Qaida</h3>
-              <p>Arabic alphabet recognition, joining letters, vowels, Sukoon, Madd and basic pronunciation foundations.</p>
-              <div class="links">
-                <span>Kids &amp; adults</span>
-                <a href="noorani-qaida.html"><strong>View Qaida Lessons →</strong></a>
+
+        <!-- 4A. PANEL: QURAN LEARNING (6 CORE CARDS) -->
+        <div id="panel-quran" class="program-panel" role="tabpanel" aria-labelledby="tab-btn-quran">
+          <div class="category-head">
+            <div>
+              <span class="eyebrow">Quran Curriculum</span>
+              <h2 class="title-lg">Quran &amp; Islamic Learning Programs</h2>
+            </div>
+            <p class="sublead">Structured, one-to-one learning tailored to the student's age, pace and recitation goals.</p>
+          </div>
+          <div class="course-grid">
+            <!-- 1. Noorani Qaida -->
+            <div class="course">
+              <div class="image">
+                <img src="assets/images/courses/Cozy Arabic Learning with Noorani Qaida.png" alt="Child learning Arabic letters with Noorani Qaida" width="1448" height="1086" loading="lazy">
+              </div>
+              <div class="body">
+                <span class="tag">Foundation</span>
+                <h3>Noorani Qaida</h3>
+                <p>Arabic alphabet recognition, joining letters, vowels, Sukoon, Madd and core pronunciation rules for beginners.</p>
+                <a href="noorani-qaida.html" class="btn btn-outline card-btn">View Qaida Lessons →</a>
+              </div>
+            </div>
+
+            <!-- 2. Quran Reading Online -->
+            <div class="course">
+              <div class="image">
+                <img src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=700&q=82" alt="Quran reading online" width="700" height="466" loading="lazy">
+              </div>
+              <div class="body">
+                <span class="tag">Reading</span>
+                <h3>Quran Reading Online</h3>
+                <p>Move from basic word recognition to fluent Quran recitation (Nazra) with regular one-to-one correction.</p>
+                <a href="contact.html#trial" class="btn btn-outline card-btn">Start Free Trial →</a>
+              </div>
+            </div>
+
+            <!-- 3. Tajweed & Recitation -->
+            <div class="course">
+              <div class="image">
+                <img src="https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=82" alt="Tajweed & Recitation" width="700" height="466" loading="lazy">
+              </div>
+              <div class="body">
+                <span class="tag">Pronunciation</span>
+                <h3>Tajweed &amp; Recitation</h3>
+                <p>Master Makharij, articulation points and core Tajweed rules with direct live feedback from your tutor.</p>
+                <a href="contact.html#trial" class="btn btn-outline card-btn">Start Free Trial →</a>
+              </div>
+            </div>
+
+            <!-- 4. Quran Memorization / Hifz -->
+            <div class="course">
+              <div class="image">
+                <img src="https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=700&q=82" alt="Quran Memorization Hifz" width="700" height="466" loading="lazy">
+              </div>
+              <div class="body">
+                <span class="tag">Memorization</span>
+                <h3>Quran Memorization / Hifz</h3>
+                <p>Structured memorization pathways for selected Surahs or full Hifz, featuring daily revision and teacher tracking.</p>
+                <a href="contact.html#trial" class="btn btn-outline card-btn">Start Free Trial →</a>
+              </div>
+            </div>
+
+            <!-- 5. Quran for Kids -->
+            <div class="course">
+              <div class="image">
+                <img src="assets/images/home/online-learning-experience.png" alt="Quran classes for children" width="1024" height="1024" loading="lazy">
+              </div>
+              <div class="body">
+                <span class="tag">Children</span>
+                <h3>Quran for Kids</h3>
+                <p>Engaging, patient and child-friendly lessons with interactive practice, regular encouragement and flexible scheduling.</p>
+                <a href="contact.html#trial" class="btn btn-outline card-btn">Book Trial for Child →</a>
+              </div>
+            </div>
+
+            <!-- 6. Quran for Adults / Sisters -->
+            <div class="course">
+              <div class="image">
+                <img src="assets/images/home/hero-quran-learning.png" alt="Quran classes for adults and sisters" width="1024" height="1280" loading="lazy">
+              </div>
+              <div class="body">
+                <span class="tag">Adults &amp; Sisters</span>
+                <h3>Quran for Adults / Sisters</h3>
+                <p>Private, respectful learning for adult beginners, re-learners and sisters, with qualified male or female tutor options.</p>
+                <a href="contact.html#trial" class="btn btn-outline card-btn">Request Tutor →</a>
               </div>
             </div>
           </div>
-          <div class="course">
-            <div class="image"><img src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=700&q=82" alt="Quran reading"></div>
-            <div class="body">
-              <span class="tag">Reading</span>
-              <h3>Online Quran Reading</h3>
-              <p>Move from basic words and verses toward fluent Quran reading with regular pronunciation correction.</p>
-              <div class="links">
-                <span>Nazra recitation</span>
-                <a href="contact.html#trial"><strong>Start Trial →</strong></a>
+        </div>
+
+        <!-- 4B. PANEL: ACADEMIC TUTORING (3 PRIMARY CARDS) -->
+        <div id="panel-academic" class="program-panel" role="tabpanel" aria-labelledby="tab-btn-academic" style="display:none">
+          <div class="category-head">
+            <div>
+              <span class="eyebrow" style="background:var(--gold-50);border-color:#fae6a6;color:#8c6407">Academic Curriculum</span>
+              <h2 class="title-lg">Academic Tutoring Programs</h2>
+            </div>
+            <p class="sublead">Structured one-to-one tuition for international and national curricula with experienced tutors.</p>
+          </div>
+          <div class="academic-grid">
+            <!-- Academic Card 1 -->
+            <div class="academic-card">
+              <div class="academic-card-head">
+                <span class="academic-num">01</span>
+                <span class="academic-pill">Cambridge / Edexcel</span>
               </div>
+              <h3>O Level / IGCSE / GCSE</h3>
+              <p>Targeted concept clarity, past-paper practice and exam preparation in Mathematics, Science and core subjects.</p>
+              <a class="btn btn-outline card-btn" href="academic-tutoring.html#olevel-gcse">View Program Details →</a>
+            </div>
+
+            <!-- Academic Card 2 -->
+            <div class="academic-card">
+              <div class="academic-card-head">
+                <span class="academic-num">02</span>
+                <span class="academic-pill">Advanced Level</span>
+              </div>
+              <h3>A Level</h3>
+              <p>Focused one-to-one academic support in Mathematics, Science and selected subjects with structured problem solving.</p>
+              <a class="btn btn-outline card-btn" href="academic-tutoring.html#alevel">View Program Details →</a>
+            </div>
+
+            <!-- Academic Card 3 -->
+            <div class="academic-card">
+              <div class="academic-card-head">
+                <span class="academic-num">03</span>
+                <span class="academic-pill">National Boards</span>
+              </div>
+              <h3>Pakistan Curriculum — Grade 1–12</h3>
+              <p>Foundational to advanced school tuition in Mathematics, Science and core subjects for Federal, Punjab and other boards.</p>
+              <a class="btn btn-outline card-btn" href="academic-tutoring.html#pakistan-curriculum">View Program Details →</a>
             </div>
           </div>
-          <div class="course">
-            <div class="image"><img src="https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=82" alt="Quran recitation"></div>
-            <div class="body">
-              <span class="tag">Recitation</span>
-              <h3>Online Quran Recitation</h3>
-              <p>Improve fluency, stopping rules, pronunciation and confidence while reading directly from the Quran.</p>
-              <div class="links">
-                <span>Accuracy &amp; fluency</span>
-                <a href="contact.html#trial"><strong>Start Trial →</strong></a>
-              </div>
+
+          <!-- 5. Compact Support Strip -->
+          <div class="academic-support-strip">
+            <div class="support-strip-left">
+              <strong>Common Areas of Support:</strong>
+              <span>Curriculum-aligned guidance tailored to student goals</span>
             </div>
+            <div class="support-strip-tags">
+              <span class="support-tag">Mathematics</span>
+              <span class="support-tag">Science Subjects</span>
+              <span class="support-tag">Other Academic Subjects</span>
+            </div>
+          </div>
+          <p class="academic-disclaimer">
+            Subject availability depends on curriculum, grade level and student requirements.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. COMPACT 3-STEP HOW IT WORKS STRIP -->
+    <section class="section-sm how-it-works-section">
+      <div class="container">
+        <div class="category-head center" style="justify-content:center;margin-bottom:30px">
+          <div>
+            <span class="eyebrow">How It Works</span>
+            <h2 class="title-md" style="margin-top:8px;margin-bottom:0">Simple 3-step enrollment process</h2>
+          </div>
+        </div>
+        <div class="steps-3">
+          <div class="step-card">
+            <span class="step-num">01</span>
+            <h3>Choose a Program</h3>
+            <p>Select Quran learning or an academic tutoring path that matches the student's level and goals.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">02</span>
+            <h3>Book Your Free Trial</h3>
+            <p>Attend a 3-day trial class with no commitment or upfront fee to experience our teaching approach.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">03</span>
+            <h3>Start Personalized Learning</h3>
+            <p>Coordinate your preferred class schedule and begin regular one-to-one lessons with your dedicated tutor.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 2: ADVANCED QURAN -->
-    <section class="section-sm" style="background:#f8fbf9" id="advanced-quran">
-      <div class="container">
-        <div class="category-head">
-          <div>
-            <span class="eyebrow">Advanced Quran</span>
-            <h2 class="title-lg">Refine recitation, memorize and understand.</h2>
-          </div>
-          <p class="sublead">Structured pathways for students who already have basic reading ability.</p>
-        </div>
-        <div class="course-grid">
-          <div class="course">
-            <div class="body">
-              <span class="tag">Makharij &amp; Rules</span>
-              <h3>Online Quran Tajweed</h3>
-              <p>Study articulation points, letter qualities and core Tajweed rules with direct live correction.</p>
-              <div class="links">
-                <span>Basic to advanced</span>
-                <a href="contact.html#trial"><strong>Start Trial →</strong></a>
-              </div>
-            </div>
-          </div>
-          <div class="course">
-            <div class="body">
-              <span class="tag">Memorization</span>
-              <h3>Quran Memorization — Hifz</h3>
-              <p>Personalized memorization targets with new lesson, revision and consistency planning.</p>
-              <div class="links">
-                <span>Selected Surahs or full Hifz</span>
-                <a href="contact.html#trial"><strong>Start Trial →</strong></a>
-              </div>
-            </div>
-          </div>
-          <div class="course">
-            <div class="body">
-              <span class="tag">Understanding</span>
-              <h3>Quran Translation &amp; Tafseer</h3>
-              <p>Learn Quranic meaning in a guided setting with suitable explanation and Islamic study context.</p>
-              <div class="links">
-                <span>English / Urdu support</span>
-                <a href="contact.html#trial"><strong>Start Trial →</strong></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 3: SPECIAL LEARNING -->
-    <section class="section" id="special-learning">
-      <div class="container">
-        <div class="category-head">
-          <div>
-            <span class="eyebrow">Special Learning Paths</span>
-            <h2 class="title-lg">Courses designed around the learner.</h2>
-          </div>
-          <p class="sublead">Age, comfort, pace and tutor preference shape the learning experience.</p>
-        </div>
-        <div class="cards-4">
-          <div class="card">
-            <h3>Quran Classes for Kids</h3>
-            <p>Short, engaging and patient lessons with regular revision and parent-friendly scheduling.</p>
-            <a class="more" href="contact.html#trial">Book trial →</a>
-          </div>
-          <div class="card">
-            <h3>Quran Classes for Adults</h3>
-            <p>Private learning for adult beginners, re-learners and students improving Tajweed or fluency.</p>
-            <a class="more" href="contact.html#trial">Book trial →</a>
-          </div>
-          <div class="card">
-            <h3>Female Quran Tutor</h3>
-            <p>Dedicated female tutor option for sisters and girls who prefer a female instructor for Quran learning.</p>
-            <a class="more" href="contact.html#trial">Request tutor →</a>
-          </div>
-          <div class="card">
-            <h3>Islamic Studies</h3>
-            <p>Foundational duas, Salah, Islamic manners and age-appropriate learning alongside Quran study.</p>
-            <a class="more" href="contact.html#trial">Ask about syllabus →</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 4: ACADEMIC TUTORING -->
-    <section class="section dark-section pattern" id="academic-tutoring">
-      <div class="container">
-        <div class="category-head">
-          <div>
-            <span class="eyebrow" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:#f2c84b">Academic Tutoring</span>
-            <h2 class="title-lg">Personalized Academic Programs.</h2>
-          </div>
-          <p class="sublead">Structured one-to-one tuition for international and national curricula with experienced tutors.</p>
-        </div>
-        <div class="cards-3">
-          <div class="card">
-            <span class="num">01</span>
-            <h3>O Level / IGCSE / GCSE</h3>
-            <p>Personalized tutoring in Mathematics, Science and other available subjects with focus on concept clarity, problem solving and exam preparation.</p>
-            <a class="more" href="academic-tutoring.html#olevel-gcse">View details →</a>
-          </div>
-          <div class="card">
-            <span class="num">02</span>
-            <h3>A Level</h3>
-            <p>Focused one-to-one academic support in Mathematics, Science and other available subjects, with structured practice and personalized guidance.</p>
-            <a class="more" href="academic-tutoring.html#alevel">View details →</a>
-          </div>
-          <div class="card">
-            <span class="num">03</span>
-            <h3>Pakistan Curriculum — Grade 1–12</h3>
-            <p>Mathematics, Science and other available academic subjects for students from foundational levels through Grade 12 in Pakistan.</p>
-            <a class="more" href="academic-tutoring.html#pakistan-curriculum">View details →</a>
-          </div>
-        </div>
-
-        <!-- SUBJECT HIGHLIGHT -->
-        <div style="margin-top:28px;padding:20px 24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
-          <div>
-            <strong style="display:block;font-size:13px;color:#fff;letter-spacing:.02em">Subjects We Support:</strong>
-            <span style="font-size:11.5px;color:#a8c4b2">One-to-one tuition tailored to the student's curriculum and learning goals.</span>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px">
-            <span style="display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;background:rgba(218,165,32,.15);border:1px solid rgba(218,165,32,.35);color:#f2c84b;font-size:12px;font-weight:600">Mathematics</span>
-            <span style="display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:12px;font-weight:600">Science Subjects</span>
-            <span style="display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:12px;font-weight:600">Other Academic Subjects</span>
-          </div>
-        </div>
-
-        <div class="notice" style="margin-top:16px;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#cfe2d5">
-          <strong style="color:#fff">Subject Availability Notice:</strong> Subject availability is confirmed according to curriculum, grade level and student requirements. Discuss your requirements during initial consultation.
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA BAND -->
+    <!-- 7. ONE FINAL CONVERSION CTA SECTION -->
     <section class="section">
       <div class="container">
         <div class="cta-band">
           <div>
-            <h2>Not sure where the student should start?</h2>
-            <p>Request a free trial and share the student's current level. A coordinator will recommend the most suitable course pathway.</p>
+            <h2>Not sure which program is right for you?</h2>
+            <p>Tell us the student's level and learning goals and we'll help you choose the right program.</p>
           </div>
           <div class="actions">
-            <a class="btn btn-gold" href="contact.html#trial">Request Free Trial</a>
-            <a class="btn btn-outline" href="pricing-plans.html">Pricing &amp; Plans</a>
+            <a class="btn btn-gold" href="contact.html#trial">Start Free Trial</a>
+            <a class="btn btn-outline-light" href="contact.html">Contact Us</a>
           </div>
         </div>
       </div>
@@ -377,5 +852,58 @@
   </footer>
 
   <script src="assets/app.js"></script>
+  <script>
+    function switchProgramTab(tabKey, scroll) {
+      const quranTabBtn = document.getElementById('tab-btn-quran');
+      const academicTabBtn = document.getElementById('tab-btn-academic');
+      const quranPanel = document.getElementById('panel-quran');
+      const academicPanel = document.getElementById('panel-academic');
+
+      if (!quranTabBtn || !academicTabBtn || !quranPanel || !academicPanel) return;
+
+      if (tabKey === 'academic') {
+        quranTabBtn.classList.remove('active');
+        quranTabBtn.setAttribute('aria-selected', 'false');
+        academicTabBtn.classList.add('active');
+        academicTabBtn.setAttribute('aria-selected', 'true');
+        quranPanel.style.display = 'none';
+        academicPanel.style.display = 'block';
+      } else {
+        academicTabBtn.classList.remove('active');
+        academicTabBtn.setAttribute('aria-selected', 'false');
+        quranTabBtn.classList.add('active');
+        quranTabBtn.setAttribute('aria-selected', 'true');
+        academicPanel.style.display = 'none';
+        quranPanel.style.display = 'block';
+      }
+
+      if (scroll) {
+        const target = document.getElementById('programs-catalog');
+        if (target) {
+          const yOffset = -90;
+          const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#academic-tutoring' || hash === '#academic' || hash.includes('olevel') || hash.includes('alevel') || hash.includes('pakistan')) {
+        switchProgramTab('academic', false);
+      } else {
+        switchProgramTab('quran', false);
+      }
+    });
+
+    window.addEventListener('hashchange', function() {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#academic-tutoring' || hash === '#academic') {
+        switchProgramTab('academic', true);
+      } else if (hash === '#quran-learning' || hash === '#quran-foundation' || hash === '#quran') {
+        switchProgramTab('quran', true);
+      }
+    });
+  </script>
 </body>
 </html>
