@@ -1225,28 +1225,28 @@ function renderTeacherSlideHtml(t) {
   var desc = t.short_description || '';
   var image = t.image;
 
-  var catColor = 'text-brand-700';
-  var avatarBg = 'from-brand-50 to-brand-100/50';
-  var iconBg = 'bg-brand-900 text-gold-400';
+  var catColor = 'text-brand-700 cat-quran';
+  var avatarBg = 'from-brand-50 to-brand-100/50 avatar-quran';
+  var iconBg = 'bg-brand-900 text-gold-400 icon-quran';
 
   var catLower = category.toLowerCase();
   if (catLower.indexOf('sister') !== -1 || catLower.indexOf('kid') !== -1) {
-    catColor = 'text-amber-700';
-    avatarBg = 'from-amber-50 to-amber-100/40';
-    iconBg = 'bg-gold-400 text-brand-950';
+    catColor = 'text-amber-700 cat-sister';
+    avatarBg = 'from-amber-50 to-amber-100/40 avatar-sister';
+    iconBg = 'bg-gold-400 text-brand-950 icon-sister';
   } else if (catLower.indexOf('academic') !== -1 || catLower.indexOf('science') !== -1 || catLower.indexOf('math') !== -1) {
-    catColor = 'text-sky-800';
-    avatarBg = 'from-sky-50 to-blue-100/40';
-    iconBg = 'bg-slate-900 text-sky-400';
+    catColor = 'text-sky-800 cat-academic';
+    avatarBg = 'from-sky-50 to-blue-100/40 avatar-academic';
+    iconBg = 'bg-slate-900 text-sky-400 icon-academic';
   }
 
   var avatarHtml = '';
   if (image) {
-    avatarHtml = '<img src="' + escapeTeacherHtml(image) + '" alt="' + escapeTeacherHtml(name) + '" class="w-full h-44 object-cover" loading="lazy">';
+    avatarHtml = '<div class="teacher-card-media"><img src="' + escapeTeacherHtml(image) + '" alt="' + escapeTeacherHtml(name) + '" class="w-full h-44 object-cover teacher-card-img" loading="lazy"></div>';
   } else {
     avatarHtml =
-      '<div class="h-44 bg-gradient-to-b ' + avatarBg + ' flex flex-col items-center justify-center relative p-4">' +
-        '<div class="w-20 h-20 rounded-full ' + iconBg + ' flex items-center justify-center shadow-md">' +
+      '<div class="teacher-card-media teacher-card-avatar h-44 bg-gradient-to-b ' + avatarBg + ' flex flex-col items-center justify-center relative p-4">' +
+        '<div class="teacher-card-avatar-icon w-20 h-20 rounded-full ' + iconBg + ' flex items-center justify-center shadow-md">' +
           '<svg viewBox="0 0 24 24" class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5">' +
             '<circle cx="12" cy="8" r="4"/>' +
             '<path d="M4 21c.8-5 3.5-7 8-7s7.2 2 8 7"/>' +
@@ -1260,18 +1260,18 @@ function renderTeacherSlideHtml(t) {
   specs.forEach(function(s) {
     var trimmed = s.trim();
     if (trimmed) {
-      specsHtml += '<span class="inline-block px-2 py-0.5 rounded-md text-[10.5px] font-semibold bg-emerald-50 text-brand-900 border border-emerald-100">' + escapeTeacherHtml(trimmed) + '</span>';
+      specsHtml += '<span class="teacher-card-tag inline-block px-2 py-0.5 rounded-md text-[10.5px] font-semibold bg-emerald-50 text-brand-900 border border-emerald-100">' + escapeTeacherHtml(trimmed) + '</span>';
     }
   });
 
   return '<div class="teacher-slide">' +
-    '<div class="rounded-2xl border border-slate-200 overflow-hidden shadow-card bg-white flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 h-full">' +
+    '<div class="teacher-card rounded-2xl border border-slate-200 overflow-hidden shadow-card bg-white flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 h-full">' +
       avatarHtml +
-      '<div class="p-5 flex-1 flex flex-col">' +
-        '<div class="text-[11px] font-extrabold uppercase tracking-wider ' + catColor + '">' + escapeTeacherHtml(category) + '</div>' +
-        '<h3 class="mt-1 text-base font-extrabold text-slate-950">' + escapeTeacherHtml(name) + '</h3>' +
-        '<p class="mt-2 text-xs text-slate-600 leading-5">' + escapeTeacherHtml(desc) + '</p>' +
-        '<div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-1.5 mt-auto">' +
+      '<div class="teacher-card-body p-5 flex-1 flex flex-col">' +
+        '<div class="teacher-card-category text-[11px] font-extrabold uppercase tracking-wider ' + catColor + '">' + escapeTeacherHtml(category) + '</div>' +
+        '<h3 class="teacher-card-name mt-1 text-base font-extrabold text-slate-950">' + escapeTeacherHtml(name) + '</h3>' +
+        '<p class="teacher-card-desc mt-2 text-xs text-slate-600 leading-5">' + escapeTeacherHtml(desc) + '</p>' +
+        '<div class="teacher-card-tags mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-1.5 mt-auto">' +
           specsHtml +
         '</div>' +
       '</div>' +
@@ -1281,16 +1281,16 @@ function renderTeacherSlideHtml(t) {
 
 function renderTeachersEmptyStateHtml() {
   return '<div class="teachers-empty-state max-w-2xl mx-auto text-center p-8 sm:p-10 rounded-2xl border border-slate-200 bg-slate-50/70 shadow-sm w-full">' +
-    '<div class="w-14 h-14 mx-auto rounded-full bg-brand-100 text-brand-800 flex items-center justify-center mb-4">' +
+    '<div class="teachers-empty-icon w-14 h-14 mx-auto rounded-full bg-brand-100 text-brand-800 flex items-center justify-center mb-4">' +
       '<svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8">' +
         '<path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' +
       '</svg>' +
     '</div>' +
-    '<h3 class="text-lg font-extrabold text-slate-900">Tutor profiles will be available soon.</h3>' +
-    '<p class="mt-2 text-xs sm:text-sm text-slate-600 leading-6">We match students with dedicated instructors based on learning goals, age, subject, and time zone. Contact our coordinator to arrange your personalized tutor matching and free trial classes.</p>' +
-    '<div class="mt-5 flex flex-wrap justify-center gap-3">' +
-      '<a href="#trial" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-900 hover:bg-brand-950 text-white text-xs font-extrabold transition-all">Start Free Trial Consultation</a>' +
-      '<a href="https://wa.me/923445455154?text=Hello%2C%20I%20would%20like%20to%20know%20about%20available%20tutors." target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-brand-900 border border-emerald-200 text-xs font-bold transition-all" data-whatsapp-link>WhatsApp Coordinator</a>' +
+    '<h3 class="teachers-empty-title text-lg font-extrabold text-slate-900">Tutor profiles will be available soon.</h3>' +
+    '<p class="teachers-empty-desc mt-2 text-xs sm:text-sm text-slate-600 leading-6">We match students with dedicated instructors based on learning goals, age, subject, and time zone. Contact our coordinator to arrange your personalized tutor matching and free trial classes.</p>' +
+    '<div class="teachers-empty-actions mt-5 flex flex-wrap justify-center gap-3">' +
+      '<a href="contact.html#trial" class="teachers-empty-btn-primary inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-900 hover:bg-brand-950 text-white text-xs font-extrabold transition-all">Start Free Trial Consultation</a>' +
+      '<a href="https://wa.me/923445455154?text=Hello%2C%20I%20would%20like%20to%20know%20about%20available%20tutors." target="_blank" rel="noopener noreferrer" class="teachers-empty-btn-whatsapp inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-brand-900 border border-emerald-200 text-xs font-bold transition-all" data-whatsapp-link>WhatsApp Coordinator</a>' +
     '</div>' +
   '</div>';
 }
@@ -1308,7 +1308,10 @@ function setupTeacherSlider(mount) {
 
   // If 0 or 1 slide, no slider controls or loops
   if (totalOriginal <= 1) {
-    if (controls) controls.style.display = 'none';
+    if (controls) {
+      controls.style.display = 'none';
+      controls.classList.add('hidden');
+    }
     if (totalOriginal === 1) {
       track.style.justifyContent = 'center';
     }
@@ -1400,7 +1403,13 @@ function setupTeacherSlider(mount) {
     var visible = getVisibleCount();
     var canSlide = totalOriginal > visible;
     if (controls) {
-      controls.style.display = canSlide ? 'flex' : 'none';
+      if (canSlide) {
+        controls.style.display = 'flex';
+        controls.classList.remove('hidden');
+      } else {
+        controls.style.display = 'none';
+        controls.classList.add('hidden');
+      }
     }
     if (canSlide) {
       startAutoplay();
@@ -1469,12 +1478,14 @@ function initTeacherCarousels() {
   if (!mounts.length) return;
 
   mounts.forEach(function(mount) {
+    if (mount.getAttribute('data-carousel-ready') === 'true') return;
     var track = mount.querySelector('.teachers-slider-track');
     if (!track) return;
 
     var existingSlides = track.querySelectorAll('.teacher-slide');
     // If slides are already server-rendered (e.g. on index.php), use them immediately
     if (existingSlides.length > 0) {
+      mount.setAttribute('data-carousel-ready', 'true');
       setupTeacherSlider(mount);
       return;
     }
@@ -1488,7 +1499,10 @@ function initTeacherCarousels() {
       if (data.teachers.length === 0) {
         track.innerHTML = renderTeachersEmptyStateHtml();
         var controls = mount.querySelector('.teachers-slider-controls');
-        if (controls) controls.style.display = 'none';
+        if (controls) {
+          controls.style.display = 'none';
+          controls.classList.add('hidden');
+        }
         return;
       }
 
@@ -1498,6 +1512,7 @@ function initTeacherCarousels() {
       });
 
       track.innerHTML = cardsHtml;
+      mount.setAttribute('data-carousel-ready', 'true');
       setupTeacherSlider(mount);
     });
   });
