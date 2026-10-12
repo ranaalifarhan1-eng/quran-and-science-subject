@@ -1,13 +1,23 @@
 # Prevent execution of any scripts uploaded to this directory
 <FilesMatch "(?i)\.(php|php3|php4|php5|php7|php8|phtml|phps|cgi|pl|py|sh|asp|aspx)$">
-    Order Deny,Allow
-    Deny from all
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Deny,Allow
+        Deny from all
+    </IfModule>
 </FilesMatch>
 
 # Allow public read access to images only
 <FilesMatch "(?i)\.(jpg|jpeg|png|webp|gif|svg)$">
-    Order Allow,Deny
-    Allow from all
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Allow from all
+    </IfModule>
 </FilesMatch>
 
 # Disable PHP engine if mod_php is present

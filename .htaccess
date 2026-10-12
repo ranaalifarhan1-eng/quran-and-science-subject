@@ -2,9 +2,14 @@
 DirectoryIndex index.php index.html
 
 # Security: Deny access to sensitive files
-<FilesMatch "(?i)^(config\.php|\.env|\.git.*|composer\.(json|lock)|.*\.sql)$">
-    Order Deny,Allow
-    Deny from all
+<FilesMatch "(?i)^(config\.php|\.env|\.git.*|composer\.(json|lock)|.*\.sql|.*\.md)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Deny,Allow
+        Deny from all
+    </IfModule>
 </FilesMatch>
 
 # Prevent directory browsing
