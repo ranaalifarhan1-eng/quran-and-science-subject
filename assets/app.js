@@ -908,5 +908,280 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// =========================================================================
+// Floating WhatsApp Contact Button Site-Wide
+// =========================================================================
+function initFloatingWhatsApp() {
+  if (document.getElementById('floatingWhatsApp')) return;
+
+  var waBtn = document.createElement('a');
+  waBtn.id = 'floatingWhatsApp';
+  waBtn.className = 'floating-whatsapp';
+  waBtn.href = 'https://wa.me/923445455154?text=' + encodeURIComponent('Hello, I would like to know more about Quran & Science online learning programs.');
+  waBtn.target = '_blank';
+  waBtn.rel = 'noopener noreferrer';
+  waBtn.setAttribute('aria-label', 'Chat with Quran & Science on WhatsApp');
+  waBtn.innerHTML =
+    '<span class="floating-whatsapp-tooltip">Chat on WhatsApp</span>' +
+    '<div class="floating-whatsapp-icon">' +
+      '<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true">' +
+        '<path d="M17.507 14.307c-.283-.141-1.674-.827-1.933-.923-.26-.094-.448-.141-.637.142-.189.283-.732.923-.897 1.112-.165.189-.33.212-.613.07-.283-.141-1.196-.441-2.279-1.406-.843-.751-1.411-1.679-1.576-1.962-.165-.283-.018-.436.124-.577.128-.127.283-.33.424-.495.142-.165.189-.283.283-.472.094-.189.047-.354-.024-.495-.07-.141-.637-1.533-.872-2.1-.23-.554-.463-.479-.637-.488-.165-.008-.354-.01-.542-.01-.189 0-.495.07-.755.354-.26.283-.99.967-.99 2.358 0 1.391 1.013 2.735 1.155 2.924.141.189 1.993 3.044 4.829 4.266.675.291 1.202.465 1.613.596.678.216 1.295.185 1.783.112.545-.081 1.674-.684 1.91-1.344.236-.66.236-1.226.165-1.344-.07-.118-.26-.189-.543-.33z"/>' +
+        '<path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 1.892.525 3.662 1.438 5.176L2.05 21.65a.75.75 0 0 0 .918.918l4.474-1.388A9.957 9.957 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm-8.5 10c0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5-3.806 8.5-8.5 8.5a8.46 8.46 0 0 1-4.303-1.171.75.75 0 0 0-.583-.075l-3.32.99.99-3.32a.75.75 0 0 0-.075-.583A8.46 8.46 0 0 1 3.5 12z"/>' +
+      '</svg>' +
+    '</div>';
+
+  document.body.appendChild(waBtn);
+}
+
+// =========================================================================
+// Curricula Auto-loop Carousel / Slider
+// =========================================================================
+function initCurriculaSlider() {
+  var viewport = document.getElementById('curriculaSliderViewport');
+  var track = document.getElementById('curriculaSliderTrack');
+  var prevBtn = document.getElementById('curriculaPrevBtn');
+  var nextBtn = document.getElementById('curriculaNextBtn');
+  if (!viewport || !track) return;
+
+  var originalSlides = Array.from(track.children);
+  if (originalSlides.length <= 1) return;
+
+  // Duplicate slides once to enable smooth seamless loop
+  originalSlides.forEach(function(slide) {
+    var clone = slide.cloneNode(true);
+    clone.setAttribute('aria-hidden', 'true');
+    track.appendChild(clone);
+  });
+
+  var allSlides = Array.from(track.children);
+  var currentIndex = 0;
+  var totalOriginal = originalSlides.length;
+  var autoplayTimer = null;
+  var isTransitioning = false;
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function getSlideDistance() {
+    if (!allSlides[0]) return 0;
+    var rect0 = allSlides[0].getBoundingClientRect();
+    var rect1 = allSlides[1] ? allSlides[1].getBoundingClientRect() : null;
+    if (rect1) {
+      return rect1.left - rect0.left;
+    }
+    return rect0.width + 16;
+  }
+
+  function updateSlide(animate) {
+    if (!animate) {
+      track.style.transition = 'none';
+    } else {
+      track.style.transition = 'transform 0.45s cubic-bezier(0.25, 1, 0.5, 1)';
+    }
+    var dist = getSlideDistance();
+    track.style.transform = 'translateX(' + (-currentIndex * dist) + 'px)';
+  }
+
+  function nextSlide() {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    currentIndex++;
+    updateSlide(true);
+  }
+
+  function prevSlide() {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    if (currentIndex <= 0) {
+      currentIndex = totalOriginal;
+      updateSlide(false);
+      track.offsetHeight; // force reflow
+    }
+    currentIndex--;
+    updateSlide(true);
+  }
+
+  track.addEventListener('transitionend', function() {
+    isTransitioning = false;
+    if (currentIndex >= totalOriginal) {
+      currentIndex = 0;
+      updateSlide(false);
+    }
+  });
+
+  function startAutoplay() {
+    if (prefersReduced) return;
+    stopAutoplay();
+    autoplayTimer = setInterval(nextSlide, 3500);
+  }
+
+  function stopAutoplay() {
+    if (autoplayTimer) {
+      clearInterval(autoplayTimer);
+      autoplayTimer = null;
+    }
+  }
+
+  viewport.addEventListener('mouseenter', stopAutoplay);
+  viewport.addEventListener('mouseleave', startAutoplay);
+  viewport.addEventListener('focusin', stopAutoplay);
+  viewport.addEventListener('focusout', startAutoplay);
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', function() {
+      stopAutoplay();
+      prevSlide();
+      startAutoplay();
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function() {
+      stopAutoplay();
+      nextSlide();
+      startAutoplay();
+    });
+  }
+
+  // Touch Swipe Handling
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchDeltaX = 0;
+
+  viewport.addEventListener('touchstart', function(e) {
+    stopAutoplay();
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchDeltaX = 0;
+  }, { passive: true });
+
+  viewport.addEventListener('touchmove', function(e) {
+    touchDeltaX = e.touches[0].clientX - touchStartX;
+  }, { passive: true });
+
+  viewport.addEventListener('touchend', function() {
+    if (Math.abs(touchDeltaX) > 40) {
+      if (touchDeltaX < 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+    startAutoplay();
+  }, { passive: true });
+
+  window.addEventListener('resize', function() {
+    updateSlide(false);
+  });
+
+  startAutoplay();
+}
+
+// =========================================================================
+// Dynamic Teachers Loader (Homepage)
+// =========================================================================
+function initDynamicTeachers() {
+  var grid = document.getElementById('teachers-grid');
+  if (!grid) return;
+
+  fetch('api/teachers.php')
+    .then(function(res) {
+      return res.ok ? res.json() : null;
+    })
+    .then(function(data) {
+      if (!data || !data.success || !Array.isArray(data.teachers) || data.teachers.length === 0) {
+        return;
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      var html = '';
+      data.teachers.forEach(function(t) {
+        var category = t.category || 'Quran Learning';
+        var name = t.name || '';
+        var role = t.role || '';
+        var desc = t.short_description || '';
+        var image = t.image;
+
+        var catColor = 'text-brand-700';
+        var avatarBg = 'from-brand-50 to-brand-100/50';
+        var iconBg = 'bg-brand-900 text-gold-400';
+
+        var catLower = category.toLowerCase();
+        if (catLower.indexOf('sister') !== -1 || catLower.indexOf('kid') !== -1) {
+          catColor = 'text-amber-700';
+          avatarBg = 'from-amber-50 to-amber-100/40';
+          iconBg = 'bg-gold-400 text-brand-950';
+        } else if (catLower.indexOf('academic') !== -1 || catLower.indexOf('science') !== -1 || catLower.indexOf('math') !== -1) {
+          catColor = 'text-sky-800';
+          avatarBg = 'from-sky-50 to-blue-100/40';
+          iconBg = 'bg-slate-900 text-sky-400';
+        }
+
+        var avatarHtml = '';
+        if (image) {
+          avatarHtml = '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(name) + '" class="w-full h-44 object-cover" loading="lazy">';
+        } else {
+          avatarHtml =
+            '<div class="h-44 bg-gradient-to-b ' + avatarBg + ' flex flex-col items-center justify-center relative p-4">' +
+              '<div class="w-20 h-20 rounded-full ' + iconBg + ' flex items-center justify-center shadow-md">' +
+                '<svg viewBox="0 0 24 24" class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5">' +
+                  '<circle cx="12" cy="8" r="4"/>' +
+                  '<path d="M4 21c.8-5 3.5-7 8-7s7.2 2 8 7"/>' +
+                '</svg>' +
+              '</div>' +
+            '</div>';
+        }
+
+        var specs = (t.specialties || '').split(',');
+        var specsHtml = '';
+        specs.forEach(function(s) {
+          var trimmed = s.trim();
+          if (trimmed) {
+            specsHtml += '<span class="inline-block px-2 py-0.5 rounded-md text-[10.5px] font-semibold bg-emerald-50 text-brand-900 border border-emerald-100">' + escapeHtml(trimmed) + '</span>';
+          }
+        });
+
+        html +=
+          '<div class="rounded-2xl border border-slate-200 overflow-hidden shadow-card bg-white flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">' +
+            avatarHtml +
+            '<div class="p-5 flex-1 flex flex-col">' +
+              '<div class="text-[11px] font-extrabold uppercase tracking-wider ' + catColor + '">' + escapeHtml(category) + '</div>' +
+              '<h3 class="mt-1 text-base font-extrabold text-slate-950">' + escapeHtml(name) + '</h3>' +
+              '<p class="mt-2 text-xs text-slate-600 leading-5">' + escapeHtml(desc) + '</p>' +
+              '<div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-1.5 mt-auto">' +
+                specsHtml +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      });
+
+      if (html) {
+        grid.innerHTML = html;
+      }
+    })
+    .catch(function() {
+      // Graceful fallback: Keep initial SSR / default cards intact
+    });
+}
+
+// Auto-run on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    initFloatingWhatsApp();
+    initCurriculaSlider();
+    initDynamicTeachers();
+  });
+} else {
+  initFloatingWhatsApp();
+  initCurriculaSlider();
+  initDynamicTeachers();
+}
+
 
 

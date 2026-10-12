@@ -1,0 +1,11 @@
+# Quran & Science — Apache / cPanel Server Configuration
+DirectoryIndex index.php index.html
+
+# Security: Deny access to sensitive files
+<FilesMatch "(?i)^(config\.php|\.env|\.git.*|composer\.(json|lock)|.*\.sql)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Prevent directory browsing
+Options -Indexes

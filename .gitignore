@@ -15,3 +15,9 @@ Desktop.ini
 node_modules/
 .gemini/
 *.zip
+
+# Production credentials & dynamic uploads
+config.php
+uploads/teachers/*
+!uploads/teachers/.gitkeep
+!uploads/teachers/.htaccess
