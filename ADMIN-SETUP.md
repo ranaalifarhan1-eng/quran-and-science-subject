@@ -107,11 +107,37 @@ Ensure the upload directory is writable by the web server:
 
 ---
 
-## Step 9: Automatic Homepage Synchronization
+---
+
+## Step 4b: Live Database Migration (For Existing Production Databases)
+If you already have a running database with the `admins` and `teachers` tables from previous deployments:
+1. Open **phpMyAdmin** in cPanel.
+2. Select your live database.
+3. Click the **Import** tab.
+4. Choose `database/migrations/002_site_settings.sql`.
+5. Click **Import** (or **Go**).
+6. This safely creates the `site_settings` table and inserts default values without modifying or dropping your existing teachers or admin accounts.
+
+---
+
+## Step 9: Manage Global Branding & Contact Settings
+1. In the Admin Panel, click **Branding & Contact** (`/admin/settings.php`).
+2. You can configure:
+   - **USA Contact Number**: Edit number, toggle Show/Hide on website.
+   - **Pakistan Contact Number**: Edit number, toggle Show/Hide on website.
+   - **WhatsApp Integration**: Edit WhatsApp number, toggle floating chat widget on/off, customize prefilled message.
+3. Click **Save Settings**.
+4. All changes propagate site-wide instantly across the topbar, contact page, floating WhatsApp widget, and footers without editing HTML.
+
+---
+
+## Step 10: Automatic Homepage & About Us Synchronization
 - When an instructor profile is created or updated in the Admin Panel:
-  - Active profiles (`status = active`) are automatically displayed on the public homepage in their specified `display_order`.
-  - Inactive profiles (`status = inactive`) are immediately hidden from the public homepage without deleting their data.
-  - If no active profiles exist in the database, the clean neutral message (`Tutor profiles will be available soon.`) is shown automatically.
+  - Active profiles (`status = active`) are automatically displayed on both the public **Homepage** and **About Us** page in their specified `display_order`.
+  - On both pages, profiles render as an auto-looping responsive carousel with subtle Prev/Next buttons, touch swipe, and smart autoplay (4.5s) that pauses on hover/focus.
+  - Inactive profiles (`status = inactive`) are immediately hidden from both pages.
+  - If fewer profiles exist than the visible breakpoint count, the carousel displays cleanly without unnecessary clone loops or arrows.
+  - If no active profiles exist in the database, the clean neutral message (`Tutor profiles will be available soon.`) is shown automatically on both pages.
   - No manual HTML editing is ever needed.
 
 ---
@@ -135,11 +161,16 @@ Because local execution environments without PHP cannot execute PHP runtimes, **
 | **11. Invalid Upload Rejection** | Upload a `.txt`, `.php`, or file > 3MB | Rejects upload with clear error message; no file saved |
 | **12. Edit Teacher (PRG Redirect)** | Edit profile via `/admin/teacher-edit.php` | Clean HTTP 303 redirect lands on `/admin/teachers.php?updated=1` with flash `"Teacher profile updated successfully."` |
 | **13. Refresh after Edit** | Press F5 / browser reload on `teachers.php?updated=1` | Page reloads cleanly without re-submitting POST |
-| **14. Status Toggle** | Click "Set Inactive" button on a profile | Status toggles to `inactive`; profile hidden from public homepage |
+| **14. Status Toggle** | Click "Set Inactive" button on a profile | Status toggles to `inactive`; profile hidden from public homepage & about page |
 | **15. Delete Teacher** | Click "Delete" button with confirmation | Profile deleted and image unlinked from disk |
 | **16. CSRF Protection** | Submit a POST request without valid `csrf_token` | Request rejected with `"Security token expired."` |
-| **17. Public Empty State** | When 0 teachers exist in database | Public homepage displays `"Tutor profiles will be available soon."` |
-| **18. Public Dynamic Sync** | When 1+ active teachers exist | Public homepage dynamically displays teacher cards in order |
+| **17. Public Empty State** | When 0 teachers exist in database | Public homepage & About page display `"Tutor profiles will be available soon."` |
+| **18. Public Dynamic Carousel** | When 1+ active teachers exist | Homepage and About page render dynamic carousel in order; 4 cards (desktop), 3 (laptop), 2 (tablet), 1 (mobile) |
+| **19. Update Phone Numbers** | Change USA or PK number in `/admin/settings.php` | Globally updates topbar, contact page, and footer across the site |
+| **20. Hide Phone Number** | Uncheck "Show on Website" for USA or PK number | Number disappears cleanly; separators are removed without dangling symbols |
+| **21. WhatsApp Settings** | Update WhatsApp number & message in settings | Floating WhatsApp button and all public WhatsApp links update URL |
+| **22. Disable Floating WhatsApp** | Uncheck "Show Floating WhatsApp Button" | Floating chat widget disappears site-wide |
+| **23. Footer Alignment QA** | Check footer across 1920px, 1440px, 1024px, 768px, 430px, 390px | Footer container has 32px (desktop), 24px (tablet), 18px (mobile) padding, aligned with content grid |
 
 
 ---

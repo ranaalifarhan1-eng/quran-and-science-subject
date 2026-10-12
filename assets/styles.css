@@ -72,7 +72,8 @@ html.drawer-scroll-lock,body.drawer-scroll-lock{overflow:hidden !important}
 
 /* Site-Wide Footer System */
 .footer{background:linear-gradient(180deg,#092c17 0%,#061f10 100%);color:#d5e6dc;border-top:2px solid rgba(242,200,75,.28);margin-top:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.6}
-.footer .footer-main{padding:56px 0 42px;display:grid;grid-template-columns:1.3fr 1fr 1.05fr 1fr;gap:36px;align-items:start}
+.footer .container{width:100%;max-width:var(--max);margin-left:auto;margin-right:auto;padding-left:32px;padding-right:32px;box-sizing:border-box}
+.footer .footer-main{padding-top:56px;padding-bottom:42px;display:grid;grid-template-columns:1.3fr 1fr 1.05fr 1fr;gap:36px;align-items:start}
 .footer .footer-logo-link{display:inline-flex;align-items:center;justify-content:flex-start;background:transparent;padding:0;height:68px;overflow:hidden;border:0;box-shadow:none;margin-bottom:14px;transition:transform .2s ease,opacity .2s ease}
 .footer .footer-logo-link:hover{transform:translateY(-2px);opacity:.95}
 .footer .footer-logo{width:214px;max-width:none;height:auto;object-fit:contain;display:block;flex-shrink:0;transform:translateY(1px);filter:drop-shadow(1px 0 0 rgba(255,255,255,.94)) drop-shadow(-1px 0 0 rgba(255,255,255,.94)) drop-shadow(0 1px 0 rgba(255,255,255,.94)) drop-shadow(0 -1px 0 rgba(255,255,255,.94))}
@@ -87,7 +88,7 @@ html.drawer-scroll-lock,body.drawer-scroll-lock{overflow:hidden !important}
 .footer .footer-cta-actions .btn{width:100%;max-width:230px;padding:11px 18px;font-size:13px;border-radius:11px}
 .footer .footer-cta-actions .btn-outline-light{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);color:#fff}
 .footer .footer-cta-actions .btn-outline-light:hover{background:rgba(255,255,255,.15);border-color:var(--gold-400);color:var(--gold-400)}
-.footer .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding:18px 0;font-size:12.5px;color:#9ab2a3;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.footer .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:18px;padding-bottom:18px;font-size:12.5px;color:#9ab2a3;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .footer .footer-note{color:#d4e5db;font-weight:600}
 
 @media(max-width:1220px){
@@ -107,7 +108,7 @@ html.drawer-scroll-lock,body.drawer-scroll-lock{overflow:hidden !important}
   .header .menu-btn{display:inline-grid;place-items:center}
   .header .brand{height:64px}
   .header .brand-logo{width:188px}
-  .hero-grid{grid-template-columns:1fr;gap:42px}.arch-wrap{margin:auto;max-width:390px}.hero-badge{left:-10px}.cards-4{grid-template-columns:repeat(2,1fr)}.course-grid,.cards-3,.plan-grid{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr;gap:38px}.footer .footer-main{grid-template-columns:repeat(2,1fr);gap:32px}.contact-grid{grid-template-columns:1fr}
+  .hero-grid{grid-template-columns:1fr;gap:42px}.arch-wrap{margin:auto;max-width:390px}.hero-badge{left:-10px}.cards-4{grid-template-columns:repeat(2,1fr)}.course-grid,.cards-3,.plan-grid{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr;gap:38px}.footer .container{padding-left:24px;padding-right:24px}.footer .footer-main{grid-template-columns:repeat(2,1fr);gap:32px;padding-top:48px;padding-bottom:36px}.contact-grid{grid-template-columns:1fr}
 }
 @media(max-width:680px){
   body .container,.container{width:100%;padding-left:18px;padding-right:18px}
@@ -120,11 +121,12 @@ html.drawer-scroll-lock,body.drawer-scroll-lock{overflow:hidden !important}
   .header .menu-btn{width:42px;height:42px;font-size:19px}
   .brand-name{font-size:18px}.brand-tag{display:none}
   .hero{padding:48px 0 58px}.page-hero{padding:46px 0 38px}.title-xl{font-size:2.45rem}.hero-grid{gap:34px}.arch img{height:390px}.hero-badge{left:10px;right:10px;bottom:16px}.checks{grid-template-columns:1fr;margin:22px 0}.actions .btn{width:100%}.trust-grid{grid-template-columns:repeat(2,1fr)}.trust-item:nth-child(2){border-right:0}.trust-item:nth-child(-n+2){border-bottom:1px solid #eef2ef}.cards-3,.cards-4,.course-grid,.plan-grid,.steps,.mini-grid{grid-template-columns:1fr}.plan.featured{transform:none}.cta-band{padding:28px 22px;display:block}.cta-band .actions{margin-top:18px}.media-card{min-height:380px}.category-head{align-items:flex-start;flex-direction:column}.form{grid-template-columns:1fr}.field.full{grid-column:auto}
-  .footer .footer-main{grid-template-columns:1fr;gap:28px;padding:42px 0 30px}
-  .footer .footer-logo-link{height:60px;padding:0 12px}
+  .footer .container{padding-left:18px;padding-right:18px}
+  .footer .footer-main{grid-template-columns:1fr;gap:28px;padding-top:42px;padding-bottom:30px}
+  .footer .footer-logo-link{height:60px;padding:0}
   .footer .footer-logo{width:186px}
   .footer .footer-cta-actions .btn{max-width:100%}
-  .footer .footer-bottom{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+  .footer .footer-bottom{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding-top:16px;padding-bottom:24px}
 }
 @media(max-width:420px){
   .mobile-nav{width:min(90vw,360px)}
@@ -534,6 +536,58 @@ html.drawer-scroll-lock,body.drawer-scroll-lock{overflow:hidden !important}
 .curricula-arrow:hover {
   background-color: #f8fafc;
   border-color: #cbd5e1;
+}
+
+/* Teachers Dynamic Carousel Slider */
+.teachers-slider-viewport {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  touch-action: pan-y;
+  user-select: none;
+  padding: 8px 4px 20px;
+}
+.teachers-slider-track {
+  display: flex;
+  gap: 20px;
+  will-change: transform;
+  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.teacher-slide {
+  flex: 0 0 calc(25% - 15px);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+@media(max-width: 1200px) {
+  .teacher-slide {
+    flex: 0 0 calc(33.333% - 14px);
+  }
+}
+@media(max-width: 860px) {
+  .teacher-slide {
+    flex: 0 0 calc(50% - 10px);
+  }
+}
+@media(max-width: 580px) {
+  .teacher-slide {
+    flex: 0 0 84%;
+  }
+}
+.teachers-slider-btn {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+.teachers-slider-btn:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+.teachers-slider-btn:disabled,
+.teachers-slider-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* Floating WhatsApp Contact Button Site-Wide */

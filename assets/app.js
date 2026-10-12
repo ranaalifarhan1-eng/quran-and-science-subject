@@ -911,13 +911,32 @@ document.addEventListener('keydown', function(e) {
 // =========================================================================
 // Floating WhatsApp Contact Button Site-Wide
 // =========================================================================
-function initFloatingWhatsApp() {
-  if (document.getElementById('floatingWhatsApp')) return;
+function initFloatingWhatsApp(settings) {
+  var waBtn = document.getElementById('floatingWhatsApp');
 
-  var waBtn = document.createElement('a');
+  if (settings && settings.whatsapp) {
+    if (!settings.whatsapp.visible) {
+      if (waBtn) waBtn.style.display = 'none';
+      return;
+    }
+  }
+
+  var defaultDigits = '923445455154';
+  var defaultMsg = 'Hello, I would like to know more about Quran & Science online learning programs.';
+  var digits = (settings && settings.whatsapp && settings.whatsapp.digits) ? settings.whatsapp.digits : defaultDigits;
+  var msg = (settings && settings.whatsapp && settings.whatsapp.message) ? settings.whatsapp.message : defaultMsg;
+  var waHref = 'https://wa.me/' + digits + '?text=' + encodeURIComponent(msg);
+
+  if (waBtn) {
+    waBtn.style.display = 'inline-flex';
+    waBtn.href = waHref;
+    return;
+  }
+
+  waBtn = document.createElement('a');
   waBtn.id = 'floatingWhatsApp';
   waBtn.className = 'floating-whatsapp';
-  waBtn.href = 'https://wa.me/923445455154?text=' + encodeURIComponent('Hello, I would like to know more about Quran & Science online learning programs.');
+  waBtn.href = waHref;
   waBtn.target = '_blank';
   waBtn.rel = 'noopener noreferrer';
   waBtn.setAttribute('aria-label', 'Chat with Quran & Science on WhatsApp');
@@ -1075,126 +1094,421 @@ function initCurriculaSlider() {
 }
 
 // =========================================================================
-// Dynamic Teachers Loader (Homepage)
+// Global Site Settings (Phone Numbers, Visibility & WhatsApp Sync)
 // =========================================================================
-function initDynamicTeachers() {
-  var grid = document.getElementById('teachers-grid');
-  if (!grid) return;
-
-  fetch('api/teachers.php')
+function initSiteSettings() {
+  fetch('api/site-settings.php')
     .then(function(res) {
       return res.ok ? res.json() : null;
     })
     .then(function(data) {
+      if (!data || !data.success) return;
+      applySiteSettings(data);
+    })
+    .catch(function() {
+      // Graceful fallback: initial HTML defaults remain active
+    });
+}
+
+function applySiteSettings(data) {
+  if (!data) return;
+
+  var phoneUs = data.phone_us;
+  var phonePk = data.phone_pk;
+  var wa = data.whatsapp;
+
+  // 1. USA Phone Number & Visibility
+  if (phoneUs) {
+    document.querySelectorAll('[data-contact-phone-us]').forEach(function(el) {
+      el.textContent = phoneUs.value;
+      if (el.tagName === 'A' && el.getAttribute('href') && el.getAttribute('href').startsWith('tel:')) {
+        el.href = 'tel:' + phoneUs.tel;
+      }
+    });
+    document.querySelectorAll('[data-contact-phone-us-wrap]').forEach(function(el) {
+      el.style.display = phoneUs.visible ? '' : 'none';
+    });
+    document.querySelectorAll('[data-contact-phone-us-card]').forEach(function(el) {
+      el.style.display = phoneUs.visible ? '' : 'none';
+    });
+  }
+
+  // 2. Pakistan Phone Number & Visibility
+  if (phonePk) {
+    document.querySelectorAll('[data-contact-phone-pk]').forEach(function(el) {
+      el.textContent = phonePk.value;
+      if (el.tagName === 'A' && el.getAttribute('href') && el.getAttribute('href').startsWith('tel:')) {
+        el.href = 'tel:' + phonePk.tel;
+      }
+    });
+    document.querySelectorAll('[data-contact-phone-pk-wrap]').forEach(function(el) {
+      el.style.display = phonePk.visible ? '' : 'none';
+    });
+    document.querySelectorAll('[data-contact-phone-pk-card]').forEach(function(el) {
+      el.style.display = phonePk.visible ? '' : 'none';
+    });
+  }
+
+  // 3. Topbar Separator & Contact Containers
+  var showUs = phoneUs ? phoneUs.visible : true;
+  var showPk = phonePk ? phonePk.visible : true;
+
+  document.querySelectorAll('[data-topbar-separator]').forEach(function(el) {
+    el.style.display = (showUs && showPk) ? '' : 'none';
+  });
+
+  document.querySelectorAll('[data-topbar-contacts]').forEach(function(el) {
+    el.style.display = (showUs || showPk) ? '' : 'none';
+  });
+
+  document.querySelectorAll('[data-footer-contacts]').forEach(function(el) {
+    el.style.display = (showUs || showPk) ? '' : 'none';
+  });
+
+  document.querySelectorAll('[data-contact-methods-card]').forEach(function(el) {
+    el.style.display = (showUs || showPk) ? '' : 'none';
+  });
+
+  // 4. WhatsApp Configuration & Floating Widget
+  if (wa) {
+    initFloatingWhatsApp(data);
+
+    var waUrl = 'https://wa.me/' + wa.digits + '?text=' + encodeURIComponent(wa.message);
+    document.querySelectorAll('[data-whatsapp-link]').forEach(function(el) {
+      var currentHref = el.getAttribute('href') || '';
+      if (currentHref.indexOf('text=') !== -1) {
+        var textParam = currentHref.substring(currentHref.indexOf('text='));
+        el.href = 'https://wa.me/' + wa.digits + '?' + textParam;
+      } else {
+        el.href = waUrl;
+      }
+    });
+
+    document.querySelectorAll('[data-whatsapp-number]').forEach(function(el) {
+      el.textContent = wa.number;
+    });
+  }
+}
+
+// =========================================================================
+// Dynamic Teachers Carousel Component (Shared across Home & About)
+// =========================================================================
+var _cachedTeachersPromise = null;
+
+function fetchActiveTeachersOnce() {
+  if (!_cachedTeachersPromise) {
+    _cachedTeachersPromise = fetch('api/teachers.php')
+      .then(function(res) {
+        return res.ok ? res.json() : null;
+      })
+      .catch(function() {
+        return null;
+      });
+  }
+  return _cachedTeachersPromise;
+}
+
+function escapeTeacherHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function renderTeacherSlideHtml(t) {
+  var category = t.category || 'Quran Learning';
+  var name = t.name || '';
+  var role = t.role || '';
+  var desc = t.short_description || '';
+  var image = t.image;
+
+  var catColor = 'text-brand-700';
+  var avatarBg = 'from-brand-50 to-brand-100/50';
+  var iconBg = 'bg-brand-900 text-gold-400';
+
+  var catLower = category.toLowerCase();
+  if (catLower.indexOf('sister') !== -1 || catLower.indexOf('kid') !== -1) {
+    catColor = 'text-amber-700';
+    avatarBg = 'from-amber-50 to-amber-100/40';
+    iconBg = 'bg-gold-400 text-brand-950';
+  } else if (catLower.indexOf('academic') !== -1 || catLower.indexOf('science') !== -1 || catLower.indexOf('math') !== -1) {
+    catColor = 'text-sky-800';
+    avatarBg = 'from-sky-50 to-blue-100/40';
+    iconBg = 'bg-slate-900 text-sky-400';
+  }
+
+  var avatarHtml = '';
+  if (image) {
+    avatarHtml = '<img src="' + escapeTeacherHtml(image) + '" alt="' + escapeTeacherHtml(name) + '" class="w-full h-44 object-cover" loading="lazy">';
+  } else {
+    avatarHtml =
+      '<div class="h-44 bg-gradient-to-b ' + avatarBg + ' flex flex-col items-center justify-center relative p-4">' +
+        '<div class="w-20 h-20 rounded-full ' + iconBg + ' flex items-center justify-center shadow-md">' +
+          '<svg viewBox="0 0 24 24" class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5">' +
+            '<circle cx="12" cy="8" r="4"/>' +
+            '<path d="M4 21c.8-5 3.5-7 8-7s7.2 2 8 7"/>' +
+          '</svg>' +
+        '</div>' +
+      '</div>';
+  }
+
+  var specs = (t.specialties || '').split(',');
+  var specsHtml = '';
+  specs.forEach(function(s) {
+    var trimmed = s.trim();
+    if (trimmed) {
+      specsHtml += '<span class="inline-block px-2 py-0.5 rounded-md text-[10.5px] font-semibold bg-emerald-50 text-brand-900 border border-emerald-100">' + escapeTeacherHtml(trimmed) + '</span>';
+    }
+  });
+
+  return '<div class="teacher-slide">' +
+    '<div class="rounded-2xl border border-slate-200 overflow-hidden shadow-card bg-white flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 h-full">' +
+      avatarHtml +
+      '<div class="p-5 flex-1 flex flex-col">' +
+        '<div class="text-[11px] font-extrabold uppercase tracking-wider ' + catColor + '">' + escapeTeacherHtml(category) + '</div>' +
+        '<h3 class="mt-1 text-base font-extrabold text-slate-950">' + escapeTeacherHtml(name) + '</h3>' +
+        '<p class="mt-2 text-xs text-slate-600 leading-5">' + escapeTeacherHtml(desc) + '</p>' +
+        '<div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-1.5 mt-auto">' +
+          specsHtml +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function renderTeachersEmptyStateHtml() {
+  return '<div class="teachers-empty-state max-w-2xl mx-auto text-center p-8 sm:p-10 rounded-2xl border border-slate-200 bg-slate-50/70 shadow-sm w-full">' +
+    '<div class="w-14 h-14 mx-auto rounded-full bg-brand-100 text-brand-800 flex items-center justify-center mb-4">' +
+      '<svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8">' +
+        '<path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' +
+      '</svg>' +
+    '</div>' +
+    '<h3 class="text-lg font-extrabold text-slate-900">Tutor profiles will be available soon.</h3>' +
+    '<p class="mt-2 text-xs sm:text-sm text-slate-600 leading-6">We match students with dedicated instructors based on learning goals, age, subject, and time zone. Contact our coordinator to arrange your personalized tutor matching and free trial classes.</p>' +
+    '<div class="mt-5 flex flex-wrap justify-center gap-3">' +
+      '<a href="#trial" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-900 hover:bg-brand-950 text-white text-xs font-extrabold transition-all">Start Free Trial Consultation</a>' +
+      '<a href="https://wa.me/923445455154?text=Hello%2C%20I%20would%20like%20to%20know%20about%20available%20tutors." target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-brand-900 border border-emerald-200 text-xs font-bold transition-all" data-whatsapp-link>WhatsApp Coordinator</a>' +
+    '</div>' +
+  '</div>';
+}
+
+function setupTeacherSlider(mount) {
+  var viewport = mount.querySelector('.teachers-slider-viewport');
+  var track = mount.querySelector('.teachers-slider-track');
+  var controls = mount.querySelector('.teachers-slider-controls');
+  var prevBtn = mount.querySelector('.teachers-slider-btn.prev');
+  var nextBtn = mount.querySelector('.teachers-slider-btn.next');
+  if (!viewport || !track) return;
+
+  var originalSlides = Array.from(track.querySelectorAll('.teacher-slide'));
+  var totalOriginal = originalSlides.length;
+
+  // If 0 or 1 slide, no slider controls or loops
+  if (totalOriginal <= 1) {
+    if (controls) controls.style.display = 'none';
+    if (totalOriginal === 1) {
+      track.style.justifyContent = 'center';
+    }
+    return;
+  }
+
+  // Duplicate slides once to enable smooth seamless loop when enough cards exist
+  originalSlides.forEach(function(slide) {
+    var clone = slide.cloneNode(true);
+    clone.setAttribute('aria-hidden', 'true');
+    track.appendChild(clone);
+  });
+
+  var allSlides = Array.from(track.children);
+  var currentIndex = 0;
+  var autoplayTimer = null;
+  var isTransitioning = false;
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function getVisibleCount() {
+    var w = window.innerWidth;
+    if (w > 1200) return 4;
+    if (w > 860) return 3;
+    if (w > 580) return 2;
+    return 1;
+  }
+
+  function getSlideDistance() {
+    if (!allSlides[0]) return 0;
+    var rect0 = allSlides[0].getBoundingClientRect();
+    var rect1 = allSlides[1] ? allSlides[1].getBoundingClientRect() : null;
+    if (rect1) {
+      return rect1.left - rect0.left;
+    }
+    return rect0.width + 20;
+  }
+
+  function updateSlide(animate) {
+    if (!animate) {
+      track.style.transition = 'none';
+    } else {
+      track.style.transition = 'transform 0.45s cubic-bezier(0.25, 1, 0.5, 1)';
+    }
+    var dist = getSlideDistance();
+    track.style.transform = 'translateX(' + (-currentIndex * dist) + 'px)';
+  }
+
+  function nextSlide() {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    currentIndex++;
+    updateSlide(true);
+  }
+
+  function prevSlide() {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    if (currentIndex <= 0) {
+      currentIndex = totalOriginal;
+      updateSlide(false);
+      track.offsetHeight; // force reflow
+    }
+    currentIndex--;
+    updateSlide(true);
+  }
+
+  track.addEventListener('transitionend', function() {
+    isTransitioning = false;
+    if (currentIndex >= totalOriginal) {
+      currentIndex = 0;
+      updateSlide(false);
+    }
+  });
+
+  function startAutoplay() {
+    if (prefersReduced || totalOriginal <= getVisibleCount()) return;
+    stopAutoplay();
+    autoplayTimer = setInterval(nextSlide, 4500); // 4.5s
+  }
+
+  function stopAutoplay() {
+    if (autoplayTimer) {
+      clearInterval(autoplayTimer);
+      autoplayTimer = null;
+    }
+  }
+
+  function checkSliderState() {
+    var visible = getVisibleCount();
+    var canSlide = totalOriginal > visible;
+    if (controls) {
+      controls.style.display = canSlide ? 'flex' : 'none';
+    }
+    if (canSlide) {
+      startAutoplay();
+      updateSlide(false);
+    } else {
+      stopAutoplay();
+      currentIndex = 0;
+      updateSlide(false);
+    }
+  }
+
+  viewport.addEventListener('mouseenter', stopAutoplay);
+  viewport.addEventListener('mouseleave', startAutoplay);
+  viewport.addEventListener('focusin', stopAutoplay);
+  viewport.addEventListener('focusout', startAutoplay);
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', function() {
+      stopAutoplay();
+      prevSlide();
+      startAutoplay();
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function() {
+      stopAutoplay();
+      nextSlide();
+      startAutoplay();
+    });
+  }
+
+  // Touch Swipe Handling
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchDeltaX = 0;
+
+  viewport.addEventListener('touchstart', function(e) {
+    stopAutoplay();
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchDeltaX = 0;
+  }, { passive: true });
+
+  viewport.addEventListener('touchmove', function(e) {
+    touchDeltaX = e.touches[0].clientX - touchStartX;
+  }, { passive: true });
+
+  viewport.addEventListener('touchend', function() {
+    if (Math.abs(touchDeltaX) > 40) {
+      if (touchDeltaX < 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+    startAutoplay();
+  }, { passive: true });
+
+  window.addEventListener('resize', checkSliderState);
+
+  checkSliderState();
+}
+
+function initTeacherCarousels() {
+  var mounts = document.querySelectorAll('[data-teacher-carousel]');
+  if (!mounts.length) return;
+
+  mounts.forEach(function(mount) {
+    var track = mount.querySelector('.teachers-slider-track');
+    if (!track) return;
+
+    var existingSlides = track.querySelectorAll('.teacher-slide');
+    // If slides are already server-rendered (e.g. on index.php), use them immediately
+    if (existingSlides.length > 0) {
+      setupTeacherSlider(mount);
+      return;
+    }
+
+    // Otherwise, fetch active profiles via API
+    fetchActiveTeachersOnce().then(function(data) {
       if (!data || !data.success || !Array.isArray(data.teachers)) {
         return;
       }
 
-      function escapeHtml(str) {
-        if (!str) return '';
-        return String(str)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
-      }
-
       if (data.teachers.length === 0) {
-        grid.className = 'mt-10';
-        grid.innerHTML =
-          '<div class="max-w-2xl mx-auto text-center p-8 sm:p-10 rounded-2xl border border-slate-200 bg-slate-50/70 shadow-sm">' +
-            '<div class="w-14 h-14 mx-auto rounded-full bg-brand-100 text-brand-800 flex items-center justify-center mb-4">' +
-              '<svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8">' +
-                '<path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' +
-              '</svg>' +
-            '</div>' +
-            '<h3 class="text-lg font-extrabold text-slate-900">Tutor profiles will be available soon.</h3>' +
-            '<p class="mt-2 text-xs sm:text-sm text-slate-600 leading-6">We match students with dedicated instructors based on learning goals, age, subject, and time zone. Contact our coordinator to arrange your personalized tutor matching and free trial classes.</p>' +
-            '<div class="mt-5 flex flex-wrap justify-center gap-3">' +
-              '<a href="#trial" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-900 hover:bg-brand-950 text-white text-xs font-extrabold transition-all">Start Free Trial Consultation</a>' +
-              '<a href="https://wa.me/923445455154?text=Hello%2C%20I%20would%20like%20to%20know%20about%20available%20tutors." target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-brand-900 border border-emerald-200 text-xs font-bold transition-all">WhatsApp Coordinator</a>' +
-            '</div>' +
-          '</div>';
+        track.innerHTML = renderTeachersEmptyStateHtml();
+        var controls = mount.querySelector('.teachers-slider-controls');
+        if (controls) controls.style.display = 'none';
         return;
       }
 
-      var html = '';
+      var cardsHtml = '';
       data.teachers.forEach(function(t) {
-        var category = t.category || 'Quran Learning';
-        var name = t.name || '';
-        var role = t.role || '';
-        var desc = t.short_description || '';
-        var image = t.image;
-
-        var catColor = 'text-brand-700';
-        var avatarBg = 'from-brand-50 to-brand-100/50';
-        var iconBg = 'bg-brand-900 text-gold-400';
-
-        var catLower = category.toLowerCase();
-        if (catLower.indexOf('sister') !== -1 || catLower.indexOf('kid') !== -1) {
-          catColor = 'text-amber-700';
-          avatarBg = 'from-amber-50 to-amber-100/40';
-          iconBg = 'bg-gold-400 text-brand-950';
-        } else if (catLower.indexOf('academic') !== -1 || catLower.indexOf('science') !== -1 || catLower.indexOf('math') !== -1) {
-          catColor = 'text-sky-800';
-          avatarBg = 'from-sky-50 to-blue-100/40';
-          iconBg = 'bg-slate-900 text-sky-400';
-        }
-
-        var avatarHtml = '';
-        if (image) {
-          avatarHtml = '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(name) + '" class="w-full h-44 object-cover" loading="lazy">';
-        } else {
-          avatarHtml =
-            '<div class="h-44 bg-gradient-to-b ' + avatarBg + ' flex flex-col items-center justify-center relative p-4">' +
-              '<div class="w-20 h-20 rounded-full ' + iconBg + ' flex items-center justify-center shadow-md">' +
-                '<svg viewBox="0 0 24 24" class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5">' +
-                  '<circle cx="12" cy="8" r="4"/>' +
-                  '<path d="M4 21c.8-5 3.5-7 8-7s7.2 2 8 7"/>' +
-                '</svg>' +
-              '</div>' +
-            '</div>';
-        }
-
-        var specs = (t.specialties || '').split(',');
-        var specsHtml = '';
-        specs.forEach(function(s) {
-          var trimmed = s.trim();
-          if (trimmed) {
-            specsHtml += '<span class="inline-block px-2 py-0.5 rounded-md text-[10.5px] font-semibold bg-emerald-50 text-brand-900 border border-emerald-100">' + escapeHtml(trimmed) + '</span>';
-          }
-        });
-
-        html +=
-          '<div class="rounded-2xl border border-slate-200 overflow-hidden shadow-card bg-white flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">' +
-            avatarHtml +
-            '<div class="p-5 flex-1 flex flex-col">' +
-              '<div class="text-[11px] font-extrabold uppercase tracking-wider ' + catColor + '">' + escapeHtml(category) + '</div>' +
-              '<h3 class="mt-1 text-base font-extrabold text-slate-950">' + escapeHtml(name) + '</h3>' +
-              '<p class="mt-2 text-xs text-slate-600 leading-5">' + escapeHtml(desc) + '</p>' +
-              '<div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-1.5 mt-auto">' +
-                specsHtml +
-              '</div>' +
-            '</div>' +
-          '</div>';
+        cardsHtml += renderTeacherSlideHtml(t);
       });
 
-      if (html) {
-        grid.className = 'mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-6';
-        grid.innerHTML = html;
-      }
-    })
-    .catch(function() {
-      // Graceful fallback: Keep initial SSR neutral placeholder intact
+      track.innerHTML = cardsHtml;
+      setupTeacherSlider(mount);
     });
+  });
 }
 
 // Auto-run on DOM ready
 function initAllModules() {
   try { initFloatingWhatsApp(); } catch (e) { console.error('WhatsApp init error:', e); }
+  try { initSiteSettings(); } catch (e) { console.error('Site settings init error:', e); }
   try { initCurriculaSlider(); } catch (e) { console.error('Curricula slider init error:', e); }
-  try { initDynamicTeachers(); } catch (e) { console.error('Teachers init error:', e); }
+  try { initTeacherCarousels(); } catch (e) { console.error('Teachers carousel init error:', e); }
 }
 
 if (document.readyState === 'loading') {

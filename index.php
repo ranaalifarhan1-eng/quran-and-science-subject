@@ -78,22 +78,24 @@ if (file_exists($configFile)) {
                 }
 
                 $cardsHtml .= '
-                <div class="rounded-2xl border border-slate-200 overflow-hidden shadow-card bg-white flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">
-                  ' . $avatarHtml . '
-                  <div class="p-5 flex-1 flex flex-col">
-                    <div class="text-[11px] font-extrabold uppercase tracking-wider ' . $catColor . '">' . e($category) . '</div>
-                    <h3 class="mt-1 text-base font-extrabold text-slate-950">' . e($name) . '</h3>
-                    <p class="mt-2 text-xs text-slate-600 leading-5">' . e($desc) . '</p>
-                    <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-1.5 mt-auto">
-                      ' . $specsHtml . '
+                <div class="teacher-slide">
+                  <div class="rounded-2xl border border-slate-200 overflow-hidden shadow-card bg-white flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 h-full">
+                    ' . $avatarHtml . '
+                    <div class="p-5 flex-1 flex flex-col">
+                      <div class="text-[11px] font-extrabold uppercase tracking-wider ' . $catColor . '">' . e($category) . '</div>
+                      <h3 class="mt-1 text-base font-extrabold text-slate-950">' . e($name) . '</h3>
+                      <p class="mt-2 text-xs text-slate-600 leading-5">' . e($desc) . '</p>
+                      <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-1.5 mt-auto">
+                        ' . $specsHtml . '
+                      </div>
                     </div>
                   </div>
                 </div>';
             }
 
-            // Replace grid content
-            $pattern = '/(<div id="teachers-grid")[^>]*>(.*?)(<\/div>\s*<div class="mt-12 text-center">)/s';
-            $replacement = '$1 class="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">' . $cardsHtml . '$3';
+            // Replace track content in slider
+            $pattern = '/(<div class="teachers-slider-track"[^>]*>)(.*?)(<\/div>\s*<\/div>\s*<\/div>\s*<div class="mt-12 text-center">)/s';
+            $replacement = '$1' . $cardsHtml . '$3';
             $html = preg_replace($pattern, $replacement, $html);
         }
     } catch (Throwable $e) {

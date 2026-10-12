@@ -52,6 +52,16 @@ try {
     <div style="font-size:32px;font-weight:800;color:var(--slate-700);margin-top:6px"><?= $inactiveTeachers ?></div>
     <div style="font-size:12.5px;color:var(--slate-600);margin-top:4px">Temporarily deactivated profiles</div>
   </div>
+
+  <!-- Card 4: Branding & Contact Settings -->
+  <div class="card" style="margin-bottom:0;padding:22px;border-top:3px solid var(--gold-500)">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px;font-weight:700;color:var(--gold-600);text-transform:uppercase;letter-spacing:0.04em">Site Settings</div>
+      <a href="settings.php" class="btn btn-gold btn-sm" style="padding:4px 10px;font-size:11.5px">Edit</a>
+    </div>
+    <div style="font-size:16px;font-weight:800;color:var(--slate-900);margin-top:14px">Branding &amp; Contact</div>
+    <div style="font-size:12.5px;color:var(--slate-600);margin-top:4px">Phones, WhatsApp, &amp; display toggles</div>
+  </div>
 </div>
 
 <div class="card">
