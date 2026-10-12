@@ -95,3 +95,38 @@ function getFlash() {
     }
     return null;
 }
+
+/**
+ * Generates and stores a one-time form submission token / request nonce.
+ *
+ * @param string $formAction
+ * @return string
+ */
+function generateFormToken($formAction = 'default') {
+    if (empty($_SESSION['form_tokens']) || !is_array($_SESSION['form_tokens'])) {
+        $_SESSION['form_tokens'] = [];
+    }
+    $token = bin2hex(random_bytes(24));
+    $_SESSION['form_tokens'][$formAction] = $token;
+    return $token;
+}
+
+/**
+ * Validates and consumes a one-time form submission token / request nonce.
+ * Returns true only on the first valid submission; false on duplicate POST / replay.
+ *
+ * @param string|null $token
+ * @param string $formAction
+ * @return bool
+ */
+function validateAndConsumeFormToken($token, $formAction = 'default') {
+    if (empty($token) || empty($_SESSION['form_tokens'][$formAction])) {
+        return false;
+    }
+    if (hash_equals($_SESSION['form_tokens'][$formAction], $token)) {
+        unset($_SESSION['form_tokens'][$formAction]);
+        return true;
+    }
+    return false;
+}
+

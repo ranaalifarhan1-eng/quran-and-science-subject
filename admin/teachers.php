@@ -1,17 +1,17 @@
 <?php
-$pageTitle = 'Teachers / Team Profiles';
-require_once __DIR__ . '/header.php';
+require_once __DIR__ . '/auth.php';
+requireAdmin();
 
 $pdo = getDbConnection();
 
-// Handle POST actions (Toggle Status, Delete)
+// Handle POST actions first (Toggle Status, Delete) BEFORE any HTML output
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $token  = $_POST['csrf_token'] ?? '';
 
     if (!verifyCsrfToken($token)) {
         setFlash('error', 'Security token expired. Please try again.');
-        header('Location: teachers.php');
+        header('Location: teachers.php', true, 303);
         exit;
     }
 
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Throwable $e) {
             setFlash('error', 'Failed to update status: ' . $e->getMessage());
         }
-        header('Location: teachers.php');
+        header('Location: teachers.php', true, 303);
         exit;
     }
 
@@ -56,21 +56,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Throwable $e) {
             setFlash('error', 'Failed to delete profile: ' . $e->getMessage());
         }
-        header('Location: teachers.php');
+        header('Location: teachers.php', true, 303);
         exit;
     }
 }
 
-// Fetch all teachers
+// Fetch all teachers for display
 $teachers = [];
 try {
     $stmt = $pdo->query("SELECT * FROM teachers ORDER BY display_order ASC, id ASC");
     $teachers = $stmt->fetchAll();
 } catch (Throwable $e) {
-    echo '<div class="alert alert-error">Database error: ' . e($e->getMessage()) . '</div>';
+    // Graceful error logging
 }
 
 $csrfToken = getCsrfToken();
+
+// Include HTML layout Header ONLY AFTER POST handling is complete
+$pageTitle = 'Teachers / Team Profiles';
+require_once __DIR__ . '/header.php';
 ?>
 
 <div class="card">

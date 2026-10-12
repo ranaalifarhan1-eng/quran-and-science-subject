@@ -128,15 +128,19 @@ Because local execution environments without PHP cannot execute PHP runtimes, **
 | **4. Login Authentication** | Sign in with valid credentials | Redirects to `/admin/index.php` dashboard with active session |
 | **5. Invalid Login Rejection** | Attempt login with wrong password | Displays error `"Invalid username or password."` without entering |
 | **6. Logout** | Click "Sign Out" in admin navigation | Clears session cookie and redirects to `login.php` |
-| **7. Add Teacher** | Create a teacher profile via `/admin/teacher-add.php` | Successfully inserts profile with status `active` |
-| **8. Image Upload** | Upload JPG, PNG, or WebP photo (< 3MB) | File saved in `uploads/teachers/` and thumbnail visible |
-| **9. Invalid Upload Rejection** | Upload a `.txt`, `.php`, or file > 3MB | Rejects upload with clear error message; no file saved |
-| **10. Edit Teacher** | Edit name, role, or upload replacement photo | Database record updated; old photo replaced safely |
-| **11. Status Toggle** | Click "Set Inactive" button on a profile | Status toggles to `inactive`; profile hidden from public homepage |
-| **12. Delete Teacher** | Click "Delete" button with confirmation | Profile deleted and image unlinked from disk |
-| **13. CSRF Protection** | Submit a POST request without valid `csrf_token` | Request rejected with `"Invalid security token."` |
-| **14. Public Empty State** | When 0 teachers exist in database | Public homepage displays `"Tutor profiles will be available soon."` |
-| **15. Public Dynamic Sync** | When 1+ active teachers exist | Public homepage dynamically displays teacher cards in order |
+| **7. Add Teacher (PRG Redirect)** | Save teacher profile via `/admin/teacher-add.php` | Clean HTTP 303 redirect lands on `/admin/teachers.php?created=1` with flash `"Teacher profile added successfully."` (zero dark screen) |
+| **8. Refresh after Add** | Press F5 / browser reload on `teachers.php?created=1` | Page reloads cleanly without re-submitting POST; exactly 1 record exists |
+| **9. Rapid Double Click** | Click Save button twice quickly on teacher form | Button disables to `"Saving..."`; one-time nonce rejects duplicate POST |
+| **10. Image Upload** | Upload JPG, PNG, or WebP photo (< 3MB) | File saved in `uploads/teachers/` and thumbnail visible |
+| **11. Invalid Upload Rejection** | Upload a `.txt`, `.php`, or file > 3MB | Rejects upload with clear error message; no file saved |
+| **12. Edit Teacher (PRG Redirect)** | Edit profile via `/admin/teacher-edit.php` | Clean HTTP 303 redirect lands on `/admin/teachers.php?updated=1` with flash `"Teacher profile updated successfully."` |
+| **13. Refresh after Edit** | Press F5 / browser reload on `teachers.php?updated=1` | Page reloads cleanly without re-submitting POST |
+| **14. Status Toggle** | Click "Set Inactive" button on a profile | Status toggles to `inactive`; profile hidden from public homepage |
+| **15. Delete Teacher** | Click "Delete" button with confirmation | Profile deleted and image unlinked from disk |
+| **16. CSRF Protection** | Submit a POST request without valid `csrf_token` | Request rejected with `"Security token expired."` |
+| **17. Public Empty State** | When 0 teachers exist in database | Public homepage displays `"Tutor profiles will be available soon."` |
+| **18. Public Dynamic Sync** | When 1+ active teachers exist | Public homepage dynamically displays teacher cards in order |
+
 
 ---
 

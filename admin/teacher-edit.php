@@ -1,6 +1,6 @@
 <?php
-$pageTitle = 'Edit Instructor Profile';
-require_once __DIR__ . '/header.php';
+require_once __DIR__ . '/auth.php';
+requireAdmin();
 
 $pdo = getDbConnection();
 $error = '';
@@ -8,7 +8,7 @@ $error = '';
 $teacherId = (int)($_GET['id'] ?? 0);
 if ($teacherId <= 0) {
     setFlash('error', 'Invalid instructor ID specified.');
-    header('Location: teachers.php');
+    header('Location: teachers.php', true, 303);
     exit;
 }
 
@@ -19,14 +19,21 @@ $teacher = $stmt->fetch();
 
 if (!$teacher) {
     setFlash('error', 'Instructor profile not found.');
-    header('Location: teachers.php');
+    header('Location: teachers.php', true, 303);
     exit;
 }
 
+// Handle POST request first (Before ANY HTML output or header.php)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $token = $_POST['csrf_token'] ?? '';
+    $token     = $_POST['csrf_token'] ?? '';
+    $formToken = $_POST['form_token'] ?? '';
+
     if (!verifyCsrfToken($token)) {
         $error = 'Security token expired. Please refresh and try again.';
+    } elseif (!validateAndConsumeFormToken($formToken, 'teacher_edit_' . $teacherId)) {
+        setFlash('info', 'This profile update was already processed.');
+        header('Location: teachers.php', true, 303);
+        exit;
     } else {
         $name        = trim($_POST['name'] ?? '');
         $role        = trim($_POST['role'] ?? '');
@@ -38,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $status      = ($_POST['status'] ?? 'active') === 'inactive' ? 'inactive' : 'active';
         $removeImage = !empty($_POST['remove_image']);
         $imagePath   = $teacher['image'];
+        $newSavedFile = null;
 
         if (empty($name) || empty($role) || empty($description)) {
             $error = 'Please complete all required fields (Name, Role/Title, Short Description).';
@@ -90,13 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             $destPath = $uploadDir . $safeFilename;
                             if (move_uploaded_file($fileTmp, $destPath)) {
-                                // Delete old image file if replacing
-                                if (!empty($teacher['image'])) {
-                                    $oldFile = dirname(__DIR__) . '/' . ltrim($teacher['image'], '/');
-                                    if (file_exists($oldFile) && is_file($oldFile)) {
-                                        @unlink($oldFile);
-                                    }
-                                }
+                                $newSavedFile = $destPath;
                                 $imagePath = 'uploads/teachers/' . $safeFilename;
                             } else {
                                 $error = 'Failed to save image to server directory. Please check folder permissions.';
@@ -135,10 +137,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $teacherId
                     ]);
 
-                    setFlash('success', 'Instructor "' . $name . '" updated successfully!');
-                    header('Location: teachers.php');
+                    // Delete previous image file only after successful DB update
+                    if ($newSavedFile && !empty($teacher['image']) && $teacher['image'] !== $imagePath) {
+                        $oldFile = dirname(__DIR__) . '/' . ltrim($teacher['image'], '/');
+                        if (file_exists($oldFile) && is_file($oldFile)) {
+                            @unlink($oldFile);
+                        }
+                    }
+
+                    // Post-Redirect-Get with HTTP 303 See Other
+                    setFlash('success', 'Teacher profile updated successfully.');
+                    header('Location: teachers.php?updated=1', true, 303);
                     exit;
                 } catch (Throwable $e) {
+                    // Clean up newly uploaded image if DB update failed
+                    if ($newSavedFile && file_exists($newSavedFile)) {
+                        @unlink($newSavedFile);
+                    }
                     $error = 'Database error: ' . $e->getMessage();
                 }
             }
@@ -146,13 +161,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Generate security tokens for the form
 $csrfToken = getCsrfToken();
+$formToken = generateFormToken('teacher_edit_' . $teacherId);
+
+// Include HTML layout Header ONLY AFTER all POST/redirect logic is resolved
+$pageTitle = 'Edit Instructor Profile';
+require_once __DIR__ . '/header.php';
 ?>
 
 <div style="max-width:800px">
   <div class="card">
     <div class="card-header">
-      <h2 class="card-title">Edit Instructor: <?= e($teacher['name']) ?></h2>
+      <h2 class="card-title">Edit Instructor Details</h2>
       <a href="teachers.php" class="btn btn-outline btn-sm">&larr; Back to List</a>
     </div>
 
@@ -164,8 +185,9 @@ $csrfToken = getCsrfToken();
         </div>
       <?php endif; ?>
 
-      <form method="POST" action="teacher-edit.php?id=<?= $teacherId ?>" enctype="multipart/form-data">
+      <form method="POST" action="teacher-edit.php?id=<?= $teacherId ?>" enctype="multipart/form-data" id="teacherEditForm">
         <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
+        <input type="hidden" name="form_token" value="<?= e($formToken) ?>">
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:18px;margin-bottom:18px">
           <div>
@@ -217,32 +239,31 @@ $csrfToken = getCsrfToken();
         <div style="margin-bottom:18px">
           <label style="display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px" for="specialties">Specialties / Tags (comma-separated)</label>
           <input type="text" id="specialties" name="specialties" value="<?= e($_POST['specialties'] ?? $teacher['specialties']) ?>" style="width:100%;padding:11px 13px;border:1.5px solid var(--slate-200);border-radius:9px;font-size:14px;font-family:inherit">
-          <span style="font-size:12px;color:var(--slate-500);display:block;margin-top:4px">Shown as badge chips on the homepage card.</span>
         </div>
 
-        <div style="padding:18px;background:#f8fafc;border-radius:12px;border:1px solid var(--slate-200);margin-bottom:24px">
-          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:18px">
-            <div>
-              <label style="display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px" for="image">Profile Photo</label>
-              
-              <?php if (!empty($teacher['image'])): ?>
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:8px;background:#fff;border-radius:8px;border:1px solid var(--slate-200);width:fit-content">
-                  <img src="../<?= e($teacher['image']) ?>" alt="Current photo" style="width:48px;height:48px;border-radius:8px;object-fit:cover">
-                  <div>
-                    <span style="font-size:12px;font-weight:700;color:var(--slate-700);display:block">Current Photo</span>
-                    <label style="font-size:11.5px;color:#ef4444;display:flex;align-items:center;gap:4px;cursor:pointer;margin-top:2px">
-                      <input type="checkbox" name="remove_image" value="1"> Remove current photo
-                    </label>
-                  </div>
-                </div>
-              <?php endif; ?>
+        <!-- Image Management -->
+        <div style="margin-bottom:24px;padding:18px;background:#f8fafc;border-radius:12px;border:1px solid var(--slate-200)">
+          <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap">
+            <?php if (!empty($teacher['image'])): ?>
+              <div style="text-align:center">
+                <img src="../<?= e($teacher['image']) ?>" alt="<?= e($teacher['name']) ?>" style="width:90px;height:90px;border-radius:12px;object-fit:cover;border:1px solid var(--slate-200);display:block">
+                <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#991b1b;margin-top:8px;cursor:pointer">
+                  <input type="checkbox" name="remove_image" value="1">
+                  Remove photo
+                </label>
+              </div>
+            <?php endif; ?>
 
+            <div style="flex:1;min-width:240px">
+              <label style="display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px" for="image">
+                <?= !empty($teacher['image']) ? 'Replace Profile Photo (Optional)' : 'Upload Profile Photo (Optional)' ?>
+              </label>
               <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/webp" style="font-size:13px">
-              <span style="font-size:11.5px;color:var(--slate-500);display:block;margin-top:4px">Upload a replacement image (JPG, PNG, WebP up to 3MB).</span>
+              <span style="font-size:11.5px;color:var(--slate-500);display:block;margin-top:4px">JPG, PNG, WebP up to 3MB.</span>
             </div>
 
-            <div>
-              <label style="display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px" for="status">Profile Visibility Status</label>
+            <div style="min-width:180px">
+              <label style="display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px" for="status">Profile Visibility</label>
               <select id="status" name="status" style="width:100%;padding:10px 12px;border:1.5px solid var(--slate-200);border-radius:9px;font-size:14px;font-family:inherit;background:#fff">
                 <?php $currentStatus = $_POST['status'] ?? $teacher['status']; ?>
                 <option value="active" <?= $currentStatus === 'active' ? 'selected' : '' ?>>Active (Visible publicly)</option>
@@ -253,12 +274,37 @@ $csrfToken = getCsrfToken();
         </div>
 
         <div style="display:flex;align-items:center;gap:12px">
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="submit" id="saveTeacherBtn" class="btn btn-primary">Update Instructor Profile</button>
           <a href="teachers.php" class="btn btn-outline">Cancel</a>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var form = document.getElementById('teacherEditForm');
+  var btn = document.getElementById('saveTeacherBtn');
+  if (!form || !btn) return;
+
+  form.addEventListener('submit', function(e) {
+    if (form.getAttribute('data-submitting') === 'true') {
+      e.preventDefault();
+      return false;
+    }
+    if (form.checkValidity && !form.checkValidity()) {
+      return;
+    }
+    form.setAttribute('data-submitting', 'true');
+    setTimeout(function() {
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      btn.style.opacity = '0.75';
+      btn.style.cursor = 'not-allowed';
+    }, 0);
+  });
+});
+</script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

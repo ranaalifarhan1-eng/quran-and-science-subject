@@ -270,6 +270,11 @@ $flash = getFlash();
       color: #991b1b;
       border: 1px solid #fecaca;
     }
+    .alert-info {
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
     /* Mobile toggle */
     .mobile-menu-btn {
       display: none;
@@ -353,8 +358,19 @@ $flash = getFlash();
 
     <div class="admin-content">
       <?php if ($flash): ?>
-        <div class="alert alert-<?= $flash['type'] === 'error' ? 'error' : 'success' ?>">
-          <span><?= $flash['type'] === 'error' ? '⚠' : '✓' ?></span>
+        <?php 
+          $alertClass = 'alert-success';
+          $alertIcon  = '✓';
+          if ($flash['type'] === 'error') {
+            $alertClass = 'alert-error';
+            $alertIcon  = '⚠';
+          } elseif ($flash['type'] === 'info') {
+            $alertClass = 'alert-info';
+            $alertIcon  = 'ℹ';
+          }
+        ?>
+        <div class="alert <?= $alertClass ?>">
+          <span><?= $alertIcon ?></span>
           <span><?= e($flash['message']) ?></span>
         </div>
       <?php endif; ?>

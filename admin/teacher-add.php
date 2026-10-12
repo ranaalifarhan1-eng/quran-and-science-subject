@@ -1,24 +1,22 @@
 <?php
-$pageTitle = 'Add Instructor Profile';
-require_once __DIR__ . '/header.php';
+require_once __DIR__ . '/auth.php';
+requireAdmin();
 
 $pdo = getDbConnection();
 $error = '';
 
-// Get default next display order
-$nextOrder = 1;
-try {
-    $stmt = $pdo->query("SELECT MAX(display_order) FROM teachers");
-    $max = $stmt->fetchColumn();
-    if ($max !== false && $max !== null) {
-        $nextOrder = (int)$max + 1;
-    }
-} catch (Throwable $e) {}
-
+// Handle POST request first (Before ANY HTML output or header.php)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $token = $_POST['csrf_token'] ?? '';
+    $token     = $_POST['csrf_token'] ?? '';
+    $formToken = $_POST['form_token'] ?? '';
+
     if (!verifyCsrfToken($token)) {
         $error = 'Security token expired. Please refresh and try again.';
+    } elseif (!validateAndConsumeFormToken($formToken, 'teacher_add')) {
+        // Prevent duplicate POST submission (double-click, back-button, or browser refresh)
+        setFlash('info', 'This profile submission was already processed.');
+        header('Location: teachers.php', true, 303);
+        exit;
     } else {
         $name        = trim($_POST['name'] ?? '');
         $role        = trim($_POST['role'] ?? '');
@@ -29,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $order       = (int)($_POST['display_order'] ?? 1);
         $status      = ($_POST['status'] ?? 'active') === 'inactive' ? 'inactive' : 'active';
         $imagePath   = null;
+        $savedFile   = null;
 
         if (empty($name) || empty($role) || empty($description)) {
             $error = 'Please complete all required fields (Name, Role/Title, Short Description).';
@@ -73,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $destPath = $uploadDir . $safeFilename;
                             if (move_uploaded_file($fileTmp, $destPath)) {
                                 $imagePath = 'uploads/teachers/' . $safeFilename;
+                                $savedFile = $destPath;
                             } else {
                                 $error = 'Failed to save image to server directory. Please check folder permissions.';
                             }
@@ -100,10 +100,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $status
                     ]);
 
-                    setFlash('success', 'Instructor "' . $name . '" created successfully!');
-                    header('Location: teachers.php');
+                    // Post-Redirect-Get with HTTP 303 See Other
+                    setFlash('success', 'Teacher profile added successfully.');
+                    header('Location: teachers.php?created=1', true, 303);
                     exit;
                 } catch (Throwable $e) {
+                    // Clean up orphan upload if database insertion fails
+                    if ($savedFile && file_exists($savedFile)) {
+                        @unlink($savedFile);
+                    }
                     $error = 'Database error: ' . $e->getMessage();
                 }
             }
@@ -111,7 +116,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Calculate next display order for form display
+$nextOrder = 1;
+try {
+    $stmt = $pdo->query("SELECT MAX(display_order) FROM teachers");
+    $max = $stmt->fetchColumn();
+    if ($max !== false && $max !== null) {
+        $nextOrder = (int)$max + 1;
+    }
+} catch (Throwable $e) {}
+
+// Generate security tokens for the form
 $csrfToken = getCsrfToken();
+$formToken = generateFormToken('teacher_add');
+
+// Include HTML layout Header ONLY AFTER all POST/redirect logic is resolved
+$pageTitle = 'Add Instructor Profile';
+require_once __DIR__ . '/header.php';
 ?>
 
 <div style="max-width:800px">
@@ -129,8 +150,9 @@ $csrfToken = getCsrfToken();
         </div>
       <?php endif; ?>
 
-      <form method="POST" action="teacher-add.php" enctype="multipart/form-data">
+      <form method="POST" action="teacher-add.php" enctype="multipart/form-data" id="teacherAddForm">
         <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
+        <input type="hidden" name="form_token" value="<?= e($formToken) ?>">
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:18px;margin-bottom:18px">
           <div>
@@ -201,12 +223,37 @@ $csrfToken = getCsrfToken();
         </div>
 
         <div style="display:flex;align-items:center;gap:12px">
-          <button type="submit" class="btn btn-primary">Save Instructor Profile</button>
+          <button type="submit" id="saveTeacherBtn" class="btn btn-primary">Save Instructor Profile</button>
           <a href="teachers.php" class="btn btn-outline">Cancel</a>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var form = document.getElementById('teacherAddForm');
+  var btn = document.getElementById('saveTeacherBtn');
+  if (!form || !btn) return;
+
+  form.addEventListener('submit', function(e) {
+    if (form.getAttribute('data-submitting') === 'true') {
+      e.preventDefault();
+      return false;
+    }
+    if (form.checkValidity && !form.checkValidity()) {
+      return;
+    }
+    form.setAttribute('data-submitting', 'true');
+    setTimeout(function() {
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      btn.style.opacity = '0.75';
+      btn.style.cursor = 'not-allowed';
+    }, 0);
+  });
+});
+</script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>
