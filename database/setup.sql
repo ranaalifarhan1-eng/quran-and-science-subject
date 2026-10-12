@@ -26,10 +26,6 @@ CREATE TABLE IF NOT EXISTS `teachers` (
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Initial Seed Teachers (Active, displayed in order 1–4)
-INSERT INTO `teachers` (`id`, `name`, `role`, `category`, `gender`, `short_description`, `specialties`, `image`, `display_order`, `status`) VALUES
-(1, 'Quran & Tajweed Tutor', 'Quran & Tajweed Tutor', 'Quran Learning', 'male', 'Specialized instruction in Makharij, foundational Arabic letters, and applied Tajweed rules for clear and confident recitation.', 'Tajweed Rules, Makharij, Recitation', NULL, 1, 'active'),
-(2, 'Female Quran Instructor', 'Female Quran Instructor', 'Sisters & Kids', 'female', 'Patient, supportive learning environment tailored for sisters, girls, and young beginners mastering Qaida and daily prayers.', 'Noorani Qaida, Duas & Salah, Kids Guidance', NULL, 2, 'active'),
-(3, 'Hifz Coach', 'Hifz Coach', 'Memorization', 'male', 'Structured daily Sabaq, Sabqi, and Manzil routines to build durable long-term retention and systematic recitation discipline.', 'Sabaq Routine, Sabqi Revision, Manzil', NULL, 3, 'active'),
-(4, 'Academic / Science Tutor', 'Academic / Science Tutor', 'Academic & Science', 'unspecified', 'Personalized concept coaching, problem-solving, and exam preparation for Cambridge O/A Levels, IGCSE, and Pakistan curricula.', 'O / A Level, Mathematics, Sciences', NULL, 4, 'active')
-ON DUPLICATE KEY UPDATE `id`=`id`;
+-- Note: No default teacher profiles are seeded.
+-- Teacher profiles should be added securely via the Admin Panel at /admin/ once verified.
+

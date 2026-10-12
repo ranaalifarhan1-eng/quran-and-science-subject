@@ -42,7 +42,7 @@ This guide details how to deploy the **Teacher / Team Management Admin Panel** o
 3. Click the **Import** tab at the top.
 4. Click **Choose File** and select `database/setup.sql` from your project folder.
 5. Click **Import** (or **Go**) at the bottom.
-6. The `admins` and `teachers` tables along with the initial approved teacher profiles will be created.
+6. The `admins` and `teachers` tables will be created cleanly. **No fake or placeholder teacher profiles are seeded.** The public homepage will display the neutral notice (`Tutor profiles will be available soon.`) until real instructor profiles are added.
 
 ---
 
@@ -111,7 +111,32 @@ Ensure the upload directory is writable by the web server:
 - When an instructor profile is created or updated in the Admin Panel:
   - Active profiles (`status = active`) are automatically displayed on the public homepage in their specified `display_order`.
   - Inactive profiles (`status = inactive`) are immediately hidden from the public homepage without deleting their data.
+  - If no active profiles exist in the database, the clean neutral message (`Tutor profiles will be available soon.`) is shown automatically.
   - No manual HTML editing is ever needed.
+
+---
+
+## Post-Deployment cPanel QA Checklist
+
+Because local execution environments without PHP cannot execute PHP runtimes, **PHP runtime QA must be completed after deployment on cPanel.** Use this verification checklist:
+
+| Test Scenario | Action to Perform | Expected Result |
+| :--- | :--- | :--- |
+| **1. Unauthenticated Redirect** | Visit `/admin/` or `/admin/teachers.php` while logged out | Automatically redirected to `/admin/login.php` |
+| **2. `/admin/install.php` Setup** | Run initial setup on a fresh database | Creates first admin account with bcrypt password hash |
+| **3. `/admin/install.php` Lock** | Attempt visiting `/admin/install.php` after admin exists | Immediately redirected to `login.php` (or blocked with 403 Forbidden) |
+| **4. Login Authentication** | Sign in with valid credentials | Redirects to `/admin/index.php` dashboard with active session |
+| **5. Invalid Login Rejection** | Attempt login with wrong password | Displays error `"Invalid username or password."` without entering |
+| **6. Logout** | Click "Sign Out" in admin navigation | Clears session cookie and redirects to `login.php` |
+| **7. Add Teacher** | Create a teacher profile via `/admin/teacher-add.php` | Successfully inserts profile with status `active` |
+| **8. Image Upload** | Upload JPG, PNG, or WebP photo (< 3MB) | File saved in `uploads/teachers/` and thumbnail visible |
+| **9. Invalid Upload Rejection** | Upload a `.txt`, `.php`, or file > 3MB | Rejects upload with clear error message; no file saved |
+| **10. Edit Teacher** | Edit name, role, or upload replacement photo | Database record updated; old photo replaced safely |
+| **11. Status Toggle** | Click "Set Inactive" button on a profile | Status toggles to `inactive`; profile hidden from public homepage |
+| **12. Delete Teacher** | Click "Delete" button with confirmation | Profile deleted and image unlinked from disk |
+| **13. CSRF Protection** | Submit a POST request without valid `csrf_token` | Request rejected with `"Invalid security token."` |
+| **14. Public Empty State** | When 0 teachers exist in database | Public homepage displays `"Tutor profiles will be available soon."` |
+| **15. Public Dynamic Sync** | When 1+ active teachers exist | Public homepage dynamically displays teacher cards in order |
 
 ---
 
@@ -120,3 +145,4 @@ Ensure the upload directory is writable by the web server:
 2. Keep your hosting PHP version up to date (PHP 8.1+ recommended).
 3. Ensure HTTPS is active across your cPanel domain (via cPanel AutoSSL or Let's Encrypt).
 4. Admin passwords are encrypted using PHP's standard `password_hash()` algorithm.
+

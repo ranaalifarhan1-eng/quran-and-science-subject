@@ -92,8 +92,8 @@ if (file_exists($configFile)) {
             }
 
             // Replace grid content
-            $pattern = '/(<div id="teachers-grid"[^>]*>)(.*?)(<\/div>\s*<div class="mt-12 text-center">)/s';
-            $replacement = '$1' . $cardsHtml . '$3';
+            $pattern = '/(<div id="teachers-grid")[^>]*>(.*?)(<\/div>\s*<div class="mt-12 text-center">)/s';
+            $replacement = '$1 class="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">' . $cardsHtml . '$3';
             $html = preg_replace($pattern, $replacement, $html);
         }
     } catch (Throwable $e) {

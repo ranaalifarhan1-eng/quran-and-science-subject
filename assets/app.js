@@ -1086,7 +1086,7 @@ function initDynamicTeachers() {
       return res.ok ? res.json() : null;
     })
     .then(function(data) {
-      if (!data || !data.success || !Array.isArray(data.teachers) || data.teachers.length === 0) {
+      if (!data || !data.success || !Array.isArray(data.teachers)) {
         return;
       }
 
@@ -1098,6 +1098,25 @@ function initDynamicTeachers() {
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
           .replace(/'/g, '&#039;');
+      }
+
+      if (data.teachers.length === 0) {
+        grid.className = 'mt-10';
+        grid.innerHTML =
+          '<div class="max-w-2xl mx-auto text-center p-8 sm:p-10 rounded-2xl border border-slate-200 bg-slate-50/70 shadow-sm">' +
+            '<div class="w-14 h-14 mx-auto rounded-full bg-brand-100 text-brand-800 flex items-center justify-center mb-4">' +
+              '<svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8">' +
+                '<path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' +
+              '</svg>' +
+            '</div>' +
+            '<h3 class="text-lg font-extrabold text-slate-900">Tutor profiles will be available soon.</h3>' +
+            '<p class="mt-2 text-xs sm:text-sm text-slate-600 leading-6">We match students with dedicated instructors based on learning goals, age, subject, and time zone. Contact our coordinator to arrange your personalized tutor matching and free trial classes.</p>' +
+            '<div class="mt-5 flex flex-wrap justify-center gap-3">' +
+              '<a href="#trial" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-900 hover:bg-brand-950 text-white text-xs font-extrabold transition-all">Start Free Trial Consultation</a>' +
+              '<a href="https://wa.me/923445455154?text=Hello%2C%20I%20would%20like%20to%20know%20about%20available%20tutors." target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-brand-900 border border-emerald-200 text-xs font-bold transition-all">WhatsApp Coordinator</a>' +
+            '</div>' +
+          '</div>';
+        return;
       }
 
       var html = '';
@@ -1162,26 +1181,28 @@ function initDynamicTeachers() {
       });
 
       if (html) {
+        grid.className = 'mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-6';
         grid.innerHTML = html;
       }
     })
     .catch(function() {
-      // Graceful fallback: Keep initial SSR / default cards intact
+      // Graceful fallback: Keep initial SSR neutral placeholder intact
     });
 }
 
 // Auto-run on DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    initFloatingWhatsApp();
-    initCurriculaSlider();
-    initDynamicTeachers();
-  });
-} else {
-  initFloatingWhatsApp();
-  initCurriculaSlider();
-  initDynamicTeachers();
+function initAllModules() {
+  try { initFloatingWhatsApp(); } catch (e) { console.error('WhatsApp init error:', e); }
+  try { initCurriculaSlider(); } catch (e) { console.error('Curricula slider init error:', e); }
+  try { initDynamicTeachers(); } catch (e) { console.error('Teachers init error:', e); }
 }
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAllModules);
+} else {
+  initAllModules();
+}
+
 
 
 

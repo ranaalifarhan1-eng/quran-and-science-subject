@@ -45,6 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Passwords do not match.';
         } else {
             try {
+                // Secondary lock check to strictly prevent multiple admin creation
+                $recheck = $pdo->query("SELECT COUNT(*) FROM admins")->fetchColumn();
+                if ((int)$recheck > 0) {
+                    http_response_code(403);
+                    die("Setup is permanently locked. An admin account already exists.");
+                }
+
                 $hash = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT INTO admins (username, email, password_hash) VALUES (?, ?, ?)");
                 $stmt->execute([$username, $email, $hash]);
