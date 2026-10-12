@@ -1,5 +1,11 @@
-# Prevent execution of any scripts uploaded to this directory
-<FilesMatch "(?i)\.(php|php3|php4|php5|php7|php8|phtml|phps|cgi|pl|py|sh|asp|aspx)$">
+# Quran & Science — Upload Directory Security
+# Hardened for Apache, LiteSpeed, and PHP-FPM environments
+
+# Disable directory listing and script execution
+Options -Indexes -ExecCGI
+
+# Deny all executable script and sensitive extensions
+<FilesMatch "(?i)\.(php|php3|php4|php5|php7|php8|phtml|phar|phps|cgi|pl|py|sh|asp|aspx|shtml|env|htaccess)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
@@ -9,8 +15,8 @@
     </IfModule>
 </FilesMatch>
 
-# Allow public read access to images only
-<FilesMatch "(?i)\.(jpg|jpeg|png|webp|gif|svg)$">
+# Allow public read access to approved teacher image formats only
+<FilesMatch "(?i)\.(jpg|jpeg|png|webp)$">
     <IfModule mod_authz_core.c>
         Require all granted
     </IfModule>
@@ -20,15 +26,8 @@
     </IfModule>
 </FilesMatch>
 
-# Disable PHP engine if mod_php is present
-<IfModule mod_php7.c>
-    php_flag engine off
+# Safely remove executable handlers without relying on php_flag (compatible with PHP-FPM / LiteSpeed)
+<IfModule mod_mime.c>
+    RemoveHandler .php .php3 .php4 .php5 .php7 .php8 .phtml .phar .cgi .pl .py .sh
+    RemoveType .php .php3 .php4 .php5 .php7 .php8 .phtml .phar .cgi .pl .py .sh
 </IfModule>
-<IfModule mod_php8.c>
-    php_flag engine off
-</IfModule>
-<IfModule mod_php.c>
-    php_flag engine off
-</IfModule>
-
-Options -ExecCGI -Indexes
