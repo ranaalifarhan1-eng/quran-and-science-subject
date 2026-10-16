@@ -98,6 +98,83 @@ if (file_exists($configFile)) {
             $replacement = '$1' . $cardsHtml . '$3';
             $html = preg_replace($pattern, $replacement, $html);
         }
+
+        // Query active testimonials
+        try {
+            $stmtTesti = $pdo->prepare("
+                SELECT id, reviewer_name, review_text, location, category, image, display_order 
+                FROM testimonials 
+                WHERE status = 'active' 
+                ORDER BY display_order ASC, id ASC
+            ");
+            $stmtTesti->execute();
+            $testimonials = $stmtTesti->fetchAll();
+
+            if (!empty($testimonials)) {
+                $testiCardsHtml = '';
+                foreach ($testimonials as $t) {
+                    $name     = $t['reviewer_name'];
+                    $text     = $t['review_text'];
+                    $loc      = $t['location'] ?? '';
+                    $cat      = $t['category'] ?? '';
+                    $image    = $t['image'] ?? '';
+
+                    $initial  = mb_strtoupper(mb_substr(trim($name), 0, 1, 'UTF-8'), 'UTF-8');
+                    if (!$initial) $initial = 'Q';
+
+                    $avatarHtml = '';
+                    if (!empty($image) && file_exists(__DIR__ . '/' . ltrim($image, '/'))) {
+                        $avatarHtml = '<img src="' . e($image) . '" alt="' . e($name) . '" class="testimonial-avatar" loading="lazy">';
+                    } else {
+                        $avatarHtml = '<div class="testimonial-avatar-initial">' . e($initial) . '</div>';
+                    }
+
+                    $catPillHtml = '';
+                    if (!empty($cat)) {
+                        $catPillHtml = '<span class="testimonial-category-pill">' . e($cat) . '</span>';
+                    }
+
+                    $locHtml = '';
+                    if (!empty($loc)) {
+                        $locHtml = '<div class="testimonial-author-location">' . e($loc) . '</div>';
+                    }
+
+                    $testiCardsHtml .= '
+                    <div class="testimonial-slide">
+                      <div class="testimonial-card">
+                        <svg class="testimonial-quote-icon" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                        </svg>
+                        <p class="testimonial-text">“' . e($text) . '”</p>
+                        <div class="testimonial-footer">
+                          <div class="testimonial-author">
+                            ' . $avatarHtml . '
+                            <div class="min-w-0">
+                              <h4 class="testimonial-author-name">' . e($name) . '</h4>
+                              ' . $locHtml . '
+                            </div>
+                          </div>
+                          ' . $catPillHtml . '
+                        </div>
+                      </div>
+                    </div>';
+                }
+
+                // Replace track content in testimonials slider
+                $testiPattern = '/(<div class="testimonials-slider-track"[^>]*>)(.*?)(<\/div>\s*<\/div>\s*<\/div>\s*<\/div>\s*<\/section>)/s';
+                $testiReplacement = '$1' . $testiCardsHtml . '$3';
+                $html = preg_replace($testiPattern, $testiReplacement, $html);
+
+                // Reveal testimonials section by removing style="display:none"
+                $html = str_replace(
+                    '<section id="testimonials" class="py-16 md:py-20 bg-[#F8FAF8] border-b border-slate-100" style="display:none">',
+                    '<section id="testimonials" class="py-16 md:py-20 bg-[#F8FAF8] border-b border-slate-100">',
+                    $html
+                );
+            }
+        } catch (Throwable $te) {
+            // Testimonials table might not exist yet before migration
+        }
     } catch (Throwable $e) {
         // Fallback gracefully to index.html static output
     }

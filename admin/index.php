@@ -26,34 +26,61 @@ try {
     // Fetch up to 6 teachers
     $stmt = $pdo->query("SELECT id, name, role, category, status, display_order, image, updated_at FROM teachers ORDER BY display_order ASC, id ASC LIMIT 6");
     $recentTeachers = $stmt->fetchAll();
+
+    // Fetch testimonials counts
+    $totalTestimonials = 0;
+    $activeTestimonials = 0;
+    try {
+        $stmtT = $pdo->query("SELECT 
+            COUNT(*) AS total,
+            SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active_count
+            FROM testimonials");
+        $countsT = $stmtT->fetch();
+        if ($countsT) {
+            $totalTestimonials = (int)($countsT['total'] ?? 0);
+            $activeTestimonials = (int)($countsT['active_count'] ?? 0);
+        }
+    } catch (Throwable $e) {
+        // Migration not yet imported
+    }
 } catch (Throwable $e) {
     echo '<div class="alert alert-error">Database connection error: ' . e($e->getMessage()) . '</div>';
 }
 ?>
 
-<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:18px;margin-bottom:28px">
+<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:18px;margin-bottom:28px">
   <!-- Card 1: Total -->
   <div class="card" style="margin-bottom:0;padding:22px">
-    <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.04em">Total Profiles</div>
+    <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.04em">Total Instructors</div>
     <div style="font-size:32px;font-weight:800;color:var(--slate-900);margin-top:6px"><?= $totalTeachers ?></div>
     <div style="font-size:12.5px;color:var(--slate-600);margin-top:4px">All configured team profiles</div>
   </div>
 
-  <!-- Card 2: Active -->
+  <!-- Card 2: Active Instructors -->
   <div class="card" style="margin-bottom:0;padding:22px;border-top:3px solid var(--brand-700)">
-    <div style="font-size:12px;font-weight:700;color:var(--brand-700);text-transform:uppercase;letter-spacing:0.04em">Active On Website</div>
+    <div style="font-size:12px;font-weight:700;color:var(--brand-700);text-transform:uppercase;letter-spacing:0.04em">Active Instructors</div>
     <div style="font-size:32px;font-weight:800;color:var(--brand-900);margin-top:6px"><?= $activeTeachers ?></div>
     <div style="font-size:12.5px;color:var(--slate-600);margin-top:4px">Publicly visible on homepage</div>
   </div>
 
-  <!-- Card 3: Inactive -->
-  <div class="card" style="margin-bottom:0;padding:22px;border-top:3px solid var(--slate-400)">
-    <div style="font-size:12px;font-weight:700;color:var(--slate-600);text-transform:uppercase;letter-spacing:0.04em">Hidden / Draft</div>
-    <div style="font-size:32px;font-weight:800;color:var(--slate-700);margin-top:6px"><?= $inactiveTeachers ?></div>
-    <div style="font-size:12.5px;color:var(--slate-600);margin-top:4px">Temporarily deactivated profiles</div>
+  <!-- Card 3: Testimonials -->
+  <div class="card" style="margin-bottom:0;padding:22px;border-top:3px solid #0b5b30">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px;font-weight:700;color:var(--brand-700);text-transform:uppercase;letter-spacing:0.04em">Testimonials</div>
+      <a href="testimonials.php" class="btn btn-primary btn-sm" style="padding:3px 8px;font-size:11px">Manage</a>
+    </div>
+    <div style="font-size:32px;font-weight:800;color:var(--brand-900);margin-top:6px"><?= $activeTestimonials ?> <span style="font-size:14px;font-weight:600;color:var(--slate-500)">/ <?= $totalTestimonials ?></span></div>
+    <div style="font-size:12.5px;color:var(--slate-600);margin-top:4px">Active reviews on website</div>
   </div>
 
-  <!-- Card 4: Branding & Contact Settings -->
+  <!-- Card 4: Inactive -->
+  <div class="card" style="margin-bottom:0;padding:22px;border-top:3px solid var(--slate-400)">
+    <div style="font-size:12px;font-weight:700;color:var(--slate-600);text-transform:uppercase;letter-spacing:0.04em">Hidden Profiles</div>
+    <div style="font-size:32px;font-weight:800;color:var(--slate-700);margin-top:6px"><?= $inactiveTeachers ?></div>
+    <div style="font-size:12.5px;color:var(--slate-600);margin-top:4px">Inactive tutor drafts</div>
+  </div>
+
+  <!-- Card 5: Branding & Contact Settings -->
   <div class="card" style="margin-bottom:0;padding:22px;border-top:3px solid var(--gold-500)">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div style="font-size:12px;font-weight:700;color:var(--gold-600);text-transform:uppercase;letter-spacing:0.04em">Site Settings</div>
