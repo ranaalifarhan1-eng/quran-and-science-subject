@@ -4,7 +4,7 @@ requireAdmin();
 
 $pdo = getDbConnection();
 
-// Ensure testimonials table exists safely
+// Ensure testimonials table exists safely and prepare 8 slots if empty
 try {
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS `testimonials` (
@@ -21,6 +21,23 @@ try {
           INDEX `idx_testimonials_status_order` (`status`, `display_order`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
+
+    $countCheck = (int)$pdo->query("SELECT COUNT(*) FROM `testimonials`")->fetchColumn();
+    if ($countCheck === 0) {
+        $pdo->exec("
+            INSERT IGNORE INTO `testimonials` 
+              (`id`, `reviewer_name`, `review_text`, `location`, `category`, `image`, `display_order`, `status`, `created_at`, `updated_at`)
+            VALUES
+              (1, 'Testimonial Slot 1', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'United Kingdom', 'Quran Learning', NULL, 1, 'inactive', NOW(), NOW()),
+              (2, 'Testimonial Slot 2', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'United States', 'Noorani Qaida', NULL, 2, 'inactive', NOW(), NOW()),
+              (3, 'Testimonial Slot 3', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'Canada', 'Tajweed Course', NULL, 3, 'inactive', NOW(), NOW()),
+              (4, 'Testimonial Slot 4', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'Australia', 'Academic Tutoring', NULL, 4, 'inactive', NOW(), NOW()),
+              (5, 'Testimonial Slot 5', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'Pakistan', 'O Level / IGCSE', NULL, 5, 'inactive', NOW(), NOW()),
+              (6, 'Testimonial Slot 6', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'United Kingdom', 'Quran Memorization', NULL, 6, 'inactive', NOW(), NOW()),
+              (7, 'Testimonial Slot 7', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'United States', 'Mathematics', NULL, 7, 'inactive', NOW(), NOW()),
+              (8, 'Testimonial Slot 8', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'United Arab Emirates', 'Islamic Studies', NULL, 8, 'inactive', NOW(), NOW());
+        ");
+    }
 } catch (Throwable $e) {
     // Continue gracefully
 }
@@ -103,7 +120,7 @@ require_once __DIR__ . '/header.php';
     <div>
       <h2 class="card-title">Family Testimonials &amp; Reviews</h2>
       <p style="font-size:12.5px;color:var(--slate-500);margin-top:2px">
-        Manage genuine student and parent feedback displayed on the homepage. Reviews are hidden from the website if set to Inactive.
+        Manage genuine student and parent feedback displayed on the homepage. 8 preconfigured review slots are provided below for easy editing; slots marked Inactive remain completely hidden from website visitors.
       </p>
     </div>
     <a href="testimonial-add.php" class="btn btn-primary btn-sm">+ Add New Testimonial</a>
@@ -139,8 +156,9 @@ require_once __DIR__ . '/header.php';
           <?php foreach ($testimonials as $t): ?>
             <?php 
               $initial = mb_strtoupper(mb_substr(trim($t['reviewer_name']), 0, 1, 'UTF-8'), 'UTF-8');
+              $isInactive = ($t['status'] === 'inactive');
             ?>
-            <tr style="border-bottom:1px solid var(--slate-100);transition:background 0.15s ease">
+            <tr style="border-bottom:1px solid var(--slate-100);transition:background 0.15s ease;<?= $isInactive ? 'background:#fafbfc;' : '' ?>">
               <!-- Order -->
               <td style="padding:14px 20px">
                 <span class="badge" style="background:#f1f5f9;color:var(--slate-700);font-weight:800;font-size:12px">
@@ -180,7 +198,7 @@ require_once __DIR__ . '/header.php';
 
               <!-- Testimonial Text -->
               <td style="padding:14px 20px">
-                <div style="color:var(--slate-700);line-height:1.5;font-size:13px;max-width:380px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden" title="<?= e($t['review_text']) ?>">
+                <div style="color:<?= $isInactive ? 'var(--slate-600)' : 'var(--slate-800)' ?>;line-height:1.5;font-size:13px;max-width:380px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden" title="<?= e($t['review_text']) ?>">
                   &ldquo;<?= e($t['review_text']) ?>&rdquo;
                 </div>
               </td>
@@ -196,7 +214,7 @@ require_once __DIR__ . '/header.php';
                       ● Active
                     </button>
                   <?php else: ?>
-                    <button type="submit" class="badge badge-danger" style="cursor:pointer;border:none" title="Click to set Active">
+                    <button type="submit" class="badge" style="cursor:pointer;border:none;background:#f1f5f9;color:#64748b;font-weight:700" title="Click to set Active">
                       ○ Inactive
                     </button>
                   <?php endif; ?>

@@ -1153,6 +1153,26 @@ html.drawer-scroll-lock,body.drawer-scroll-lock{overflow:hidden !important}
   will-change: transform;
   transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
 }
+.testimonials-slider-track.is-single {
+  justify-content: center;
+}
+.testimonials-slider-track.is-single .testimonial-slide {
+  flex: 0 0 min(100%, 520px);
+  max-width: 520px;
+}
+.testimonials-slider-track.is-double {
+  justify-content: center;
+}
+.testimonials-slider-track.is-double .testimonial-slide {
+  flex: 0 0 calc(50% - 10px);
+  max-width: 480px;
+}
+@media(max-width: 600px) {
+  .testimonials-slider-track.is-double .testimonial-slide {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
 .testimonial-slide {
   flex: 0 0 calc(33.333% - 14px);
   min-width: 0;

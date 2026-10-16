@@ -1822,8 +1822,13 @@ function setupTestimonialSlider(mount) {
       controls.style.display = 'none';
       controls.classList.add('hidden');
     }
-    track.style.justifyContent = 'center';
+    track.classList.add('is-single');
     return;
+  }
+
+  // If 2 slides, display centered without duplicate clones
+  if (totalOriginal === 2) {
+    track.classList.add('is-double');
   }
 
   function getVisibleCount() {
@@ -1833,8 +1838,9 @@ function setupTestimonialSlider(mount) {
     return 1;
   }
 
-  // Duplicate slides once to enable smooth seamless loop if we have enough items
-  if (totalOriginal >= 2) {
+  // Duplicate slides once to enable smooth seamless loop only when 3+ items exist
+  // (Prevents duplicate reviews from ever rendering simultaneously on desktop when only 2 exist)
+  if (totalOriginal >= 3) {
     originalSlides.forEach(function(slide) {
       var clone = slide.cloneNode(true);
       clone.setAttribute('aria-hidden', 'true');
@@ -1920,7 +1926,7 @@ function setupTestimonialSlider(mount) {
         controls.classList.add('hidden');
       }
     }
-    if (canSlide) {
+    if (canSlide && totalOriginal >= 3) {
       startAutoplay();
       updateSlide(false);
     } else {

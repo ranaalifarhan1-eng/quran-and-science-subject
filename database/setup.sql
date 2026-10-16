@@ -60,8 +60,18 @@ CREATE TABLE IF NOT EXISTS `testimonials` (
   INDEX `idx_testimonials_status_order` (`status`, `display_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Note: No default testimonials are seeded.
--- Genuine family feedback should be entered securely via the Admin Panel at /admin/.
+-- 8 Inactive Testimonial Slots (Inactive by default; edit via Admin Panel at /admin/testimonials.php)
+INSERT IGNORE INTO `testimonials` 
+  (`id`, `reviewer_name`, `review_text`, `location`, `category`, `image`, `display_order`, `status`, `created_at`, `updated_at`)
+VALUES
+  (1, 'Testimonial Slot 1', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'United Kingdom', 'Quran Learning', NULL, 1, 'inactive', NOW(), NOW()),
+  (2, 'Testimonial Slot 2', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'United States', 'Noorani Qaida', NULL, 2, 'inactive', NOW(), NOW()),
+  (3, 'Testimonial Slot 3', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'Canada', 'Tajweed Course', NULL, 3, 'inactive', NOW(), NOW()),
+  (4, 'Testimonial Slot 4', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'Australia', 'Academic Tutoring', NULL, 4, 'inactive', NOW(), NOW()),
+  (5, 'Testimonial Slot 5', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'Pakistan', 'O Level / IGCSE', NULL, 5, 'inactive', NOW(), NOW()),
+  (6, 'Testimonial Slot 6', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'United Kingdom', 'Quran Memorization', NULL, 6, 'inactive', NOW(), NOW()),
+  (7, 'Testimonial Slot 7', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'United States', 'Mathematics', NULL, 7, 'inactive', NOW(), NOW()),
+  (8, 'Testimonial Slot 8', 'This slot is reserved for genuine family feedback. Click Edit in the Admin Panel to enter verified student or parent feedback.', 'United Arab Emirates', 'Islamic Studies', NULL, 8, 'inactive', NOW(), NOW());
 
 
 
