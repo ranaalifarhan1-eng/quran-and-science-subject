@@ -1120,12 +1120,88 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+var _topbarTickerState = {
+  data: null,
+  pauseTimer: null,
+  resizeTimer: null,
+  touchBound: false
+};
+
+function getTickerTargetSpeed() {
+  var w = window.innerWidth || document.documentElement.clientWidth || 1280;
+  if (w <= 680) {
+    return 24; // Mobile: 24 px/sec (target: 22–26 px/sec)
+  }
+  if (w <= 1024) {
+    return 28; // Tablet: 28 px/sec (target: 26–30 px/sec)
+  }
+  return 30; // Desktop: 30 px/sec (target: 28–32 px/sec)
+}
+
+function updateTopbarTickerSpeed() {
+  var topbar = document.querySelector('.topbar');
+  if (!topbar) return;
+  var track = topbar.querySelector('.topbar-ticker-track');
+  if (!track) return;
+  var group1 = track.querySelector('.topbar-ticker-group');
+  if (!group1) return;
+
+  var groupWidth = group1.getBoundingClientRect().width || group1.offsetWidth;
+  if (!groupWidth || groupWidth <= 0) return;
+
+  var speed = getTickerTargetSpeed();
+  var duration = Math.max(30, groupWidth / speed).toFixed(2) + 's';
+  topbar.style.setProperty('--ticker-duration', duration);
+}
+
+function bindTopbarTouchHandlers(topbar) {
+  if (_topbarTickerState.touchBound || !topbar) return;
+  _topbarTickerState.touchBound = true;
+
+  topbar.addEventListener('touchstart', function() {
+    clearTimeout(_topbarTickerState.pauseTimer);
+    topbar.classList.add('is-paused');
+  }, { passive: true });
+
+  topbar.addEventListener('touchend', function() {
+    clearTimeout(_topbarTickerState.pauseTimer);
+    _topbarTickerState.pauseTimer = setTimeout(function() {
+      topbar.classList.remove('is-paused');
+    }, 1500);
+  }, { passive: true });
+
+  topbar.addEventListener('touchcancel', function() {
+    clearTimeout(_topbarTickerState.pauseTimer);
+    topbar.classList.remove('is-paused');
+  }, { passive: true });
+
+  window.addEventListener('resize', function() {
+    clearTimeout(_topbarTickerState.resizeTimer);
+    _topbarTickerState.resizeTimer = setTimeout(function() {
+      if (_topbarTickerState.data) {
+        updateTopbarTicker(_topbarTickerState.data);
+      } else {
+        updateTopbarTickerSpeed();
+      }
+    }, 200);
+  }, { passive: true });
+}
+
+function initTopbarTicker() {
+  var topbar = document.querySelector('.topbar');
+  if (!topbar) return;
+  bindTopbarTouchHandlers(topbar);
+  updateTopbarTickerSpeed();
+}
+
 function updateTopbarTicker(data) {
   var topbar = document.querySelector('.topbar');
   if (!topbar) return;
 
   var track = topbar.querySelector('.topbar-ticker-track');
   if (!track) return;
+
+  _topbarTickerState.data = data;
 
   var phoneUs = data.phone_us;
   var phonePk = data.phone_pk;
@@ -1184,13 +1260,38 @@ function updateTopbarTicker(data) {
     );
   }
 
-  // Build repeated unit so each group fills wide monitors seamlessly
   var unitHtml = items.join(sep);
-  var groupContent = unitHtml + sep + unitHtml + sep + unitHtml + sep;
+
+  // Measure 1 unit width to determine optimal repetitions
+  track.innerHTML =
+    '<div class="topbar-ticker-group">' + unitHtml + sep + '</div>' +
+    '<div class="topbar-ticker-group" aria-hidden="true">' + unitHtml + sep + '</div>';
+
+  var testGroup = track.querySelector('.topbar-ticker-group');
+  var unitWidth = testGroup ? (testGroup.getBoundingClientRect().width || testGroup.offsetWidth) : 740;
+  if (!unitWidth || unitWidth <= 0) unitWidth = 740;
+
+  // Viewport width to cover without gaps
+  var viewW = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0, 360);
+  // Calculate repetitions needed so Group 1 width >= viewport width (supports ultrawide 2560px & 3840px)
+  var repsNeeded = Math.ceil(viewW / unitWidth);
+  // Minimum 2 repetitions for smooth loop on mobile, up to whatever is required for 4K
+  var reps = Math.max(2, repsNeeded);
+
+  var groupContent = '';
+  for (var i = 0; i < reps; i++) {
+    groupContent += unitHtml + sep;
+  }
 
   track.innerHTML =
     '<div class="topbar-ticker-group">' + groupContent + '</div>' +
     '<div class="topbar-ticker-group" aria-hidden="true">' + groupContent + '</div>';
+
+  // Calculate and apply constant pixel speed duration
+  updateTopbarTickerSpeed();
+
+  // Attach touch & pause handlers once
+  bindTopbarTouchHandlers(topbar);
 }
 
 function applySiteSettings(data) {
@@ -1625,6 +1726,7 @@ function initTeacherCarousels() {
 
 // Auto-run on DOM ready
 function initAllModules() {
+  try { initTopbarTicker(); } catch (e) { console.error('Topbar ticker init error:', e); }
   try { initFloatingWhatsApp(); } catch (e) { console.error('WhatsApp init error:', e); }
   try { initSiteSettings(); } catch (e) { console.error('Site settings init error:', e); }
   try { initCurriculaSlider(); } catch (e) { console.error('Curricula slider init error:', e); }

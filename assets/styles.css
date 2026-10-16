@@ -37,10 +37,12 @@ body .container,.container{width:100%;max-width:var(--max);margin-left:auto;marg
   width: max-content;
   white-space: nowrap;
   will-change: transform;
-  animation: topbarTicker 26s linear infinite;
+  animation: topbarTicker var(--ticker-duration, 55s) linear infinite;
 }
 .topbar:hover .topbar-ticker-track,
-.topbar:focus-within .topbar-ticker-track {
+.topbar:focus-within .topbar-ticker-track,
+.topbar:active .topbar-ticker-track,
+.topbar.is-paused .topbar-ticker-track {
   animation-play-state: paused;
 }
 .topbar-ticker-group {
@@ -221,6 +223,7 @@ html.drawer-scroll-lock,body.drawer-scroll-lock{overflow:hidden !important}
 }
 @media(max-width:1024px){
   body .container,.container{padding-left:24px;padding-right:24px}
+  .topbar-ticker-track{animation-duration:var(--ticker-duration, 50s)}
   .header .nav-wrap{height:80px;display:flex;align-items:center;justify-content:space-between;gap:16px}
   .header .nav{display:none}
   .header .nav-cta{display:none}
@@ -235,7 +238,7 @@ html.drawer-scroll-lock,body.drawer-scroll-lock{overflow:hidden !important}
   .topbar{height:30px;font-size:11.5px}
   .topbar .ticker-sep{margin:0 12px;font-size:11px}
   .topbar .ticker-ico svg{width:12px;height:12px}
-  .topbar-ticker-track{animation-duration:22s}
+  .topbar-ticker-track{animation-duration:var(--ticker-duration, 45s)}
   .header .nav-wrap{height:72px}
   .header .brand{height:56px;min-width:0}
   .header .brand-logo{width:162px}
