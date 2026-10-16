@@ -8,13 +8,15 @@ require_once __DIR__ . '/auth.php';
 requireAdmin();
 
 $defaultSettings = [
-    'phone_us'         => '+1 406 497 0497',
-    'phone_us_visible' => '1',
-    'phone_pk'         => '+92 344 5455154',
-    'phone_pk_visible' => '1',
-    'whatsapp_number'  => '+92 344 5455154',
-    'whatsapp_visible' => '1',
-    'whatsapp_message' => 'Hello, I would like to know more about Quran & Science online learning programs.'
+    'phone_us'              => '+1 406 497 0497',
+    'phone_us_visible'      => '1',
+    'phone_pk'              => '+92 344 5455154',
+    'phone_pk_visible'      => '1',
+    'contact_email'         => 'onlinelearningacademy03@gmail.com',
+    'contact_email_visible' => '1',
+    'whatsapp_number'       => '+92 344 5455154',
+    'whatsapp_visible'      => '1',
+    'whatsapp_message'      => 'Hello, I would like to know more about Quran & Science online learning programs.'
 ];
 
 $errors = [];
@@ -38,6 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone_pk = trim(strip_tags($_POST['phone_pk'] ?? ''));
     $phone_pk_visible = isset($_POST['phone_pk_visible']) ? '1' : '0';
 
+    $contact_email = trim(strip_tags($_POST['contact_email'] ?? ''));
+    $contact_email_visible = isset($_POST['contact_email_visible']) ? '1' : '0';
+
     $whatsapp_number = trim(strip_tags($_POST['whatsapp_number'] ?? ''));
     $whatsapp_visible = isset($_POST['whatsapp_visible']) ? '1' : '0';
 
@@ -48,6 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (empty($phone_pk) && $phone_pk_visible === '1') {
         $errors[] = 'Pakistan phone number is marked visible but no number was entered.';
+    }
+    if (!empty($contact_email)) {
+        if (!filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Please enter a valid email address.';
+        } elseif (strlen($contact_email) > 100) {
+            $errors[] = 'Email address is too long (maximum 100 characters).';
+        }
+    } elseif ($contact_email_visible === '1') {
+        $errors[] = 'Email address is marked visible but no email was entered.';
     }
     if (empty($whatsapp_number) && $whatsapp_visible === '1') {
         $errors[] = 'WhatsApp number is marked visible but no number was entered.';
@@ -73,13 +87,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
 
             $saveItems = [
-                'phone_us'         => $phone_us,
-                'phone_us_visible' => $phone_us_visible,
-                'phone_pk'         => $phone_pk,
-                'phone_pk_visible' => $phone_pk_visible,
-                'whatsapp_number'  => $whatsapp_number,
-                'whatsapp_visible' => $whatsapp_visible,
-                'whatsapp_message' => $whatsapp_message
+                'phone_us'              => $phone_us,
+                'phone_us_visible'      => $phone_us_visible,
+                'phone_pk'              => $phone_pk,
+                'phone_pk_visible'      => $phone_pk_visible,
+                'contact_email'         => $contact_email,
+                'contact_email_visible' => $contact_email_visible,
+                'whatsapp_number'       => $whatsapp_number,
+                'whatsapp_visible'      => $whatsapp_visible,
+                'whatsapp_message'      => $whatsapp_message
             ];
 
             $stmt = $pdo->prepare("
@@ -168,7 +184,7 @@ require_once __DIR__ . '/header.php';
           </label>
         </div>
         <input type="text" id="phone_us" name="phone_us" class="form-control" value="<?= e($currentSettings['phone_us'] ?? '') ?>" placeholder="e.g. +1 406 497 0497" required>
-        <span class="form-hint" style="margin-top:6px;display:block">Displays in topbar, contact page, and footer USA phone lines.</span>
+        <span class="form-hint" style="margin-top:6px;display:block">Displays in top contact ticker, Contact page, and footer USA phone lines.</span>
       </div>
 
       <!-- Pakistan Phone -->
@@ -181,7 +197,20 @@ require_once __DIR__ . '/header.php';
           </label>
         </div>
         <input type="text" id="phone_pk" name="phone_pk" class="form-control" value="<?= e($currentSettings['phone_pk'] ?? '') ?>" placeholder="e.g. +92 344 5455154" required>
-        <span class="form-hint" style="margin-top:6px;display:block">Displays in topbar, contact page, and footer PK phone lines.</span>
+        <span class="form-hint" style="margin-top:6px;display:block">Displays in top contact ticker, Contact page, and footer PK phone lines.</span>
+      </div>
+
+      <!-- Email Address -->
+      <div style="background:#f8fafc;padding:18px;border-radius:14px;border:1px solid var(--slate-200);grid-column:1 / -1">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <label for="contact_email" class="form-label" style="font-weight:800;margin:0">Official Contact Email</label>
+          <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--brand-900);cursor:pointer">
+            <input type="checkbox" name="contact_email_visible" value="1" <?= ($currentSettings['contact_email_visible'] ?? '1') === '1' ? 'checked' : '' ?> style="width:16px;height:16px;accent-color:var(--brand-900)">
+            <span>Show on Website</span>
+          </label>
+        </div>
+        <input type="email" id="contact_email" name="contact_email" class="form-control" value="<?= e($currentSettings['contact_email'] ?? '') ?>" placeholder="e.g. onlinelearningacademy03@gmail.com" required>
+        <span class="form-hint" style="margin-top:6px;display:block">Displays in top contact ticker, Contact page, and footer email lines.</span>
       </div>
     </div>
   </div>

@@ -40,8 +40,11 @@ INSERT IGNORE INTO `site_settings` (`setting_key`, `setting_value`) VALUES
   ('phone_us_visible', '1'),
   ('phone_pk', '+92 344 5455154'),
   ('phone_pk_visible', '1'),
+  ('contact_email', 'onlinelearningacademy03@gmail.com'),
+  ('contact_email_visible', '1'),
   ('whatsapp_number', '+92 344 5455154'),
   ('whatsapp_visible', '1'),
   ('whatsapp_message', 'Hello, I would like to know more about Quran & Science online learning programs.');
+
 
 

@@ -1110,11 +1110,95 @@ function initSiteSettings() {
     });
 }
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function updateTopbarTicker(data) {
+  var topbar = document.querySelector('.topbar');
+  if (!topbar) return;
+
+  var track = topbar.querySelector('.topbar-ticker-track');
+  if (!track) return;
+
+  var phoneUs = data.phone_us;
+  var phonePk = data.phone_pk;
+  var email = data.email;
+
+  var showUs = phoneUs && phoneUs.visible && phoneUs.value;
+  var showPk = phonePk && phonePk.visible && phonePk.value;
+  var showEmail = email && email.visible && email.value;
+
+  // If no contact items are visible, hide topbar
+  if (!showUs && !showPk && !showEmail) {
+    topbar.style.display = 'none';
+    return;
+  }
+  topbar.style.display = '';
+
+  var items = [];
+  var sep = '<span class="ticker-sep" aria-hidden="true">&bull;</span>';
+
+  if (showUs) {
+    items.push(
+      '<span class="ticker-item">' +
+        '<span class="ticker-ico">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+            '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>' +
+          '</svg>' +
+        '</span>' +
+        '<span class="ticker-lbl">USA:</span> ' +
+        '<a href="tel:' + escapeHtml(phoneUs.tel) + '" class="ticker-link" data-contact-phone-us>' + escapeHtml(phoneUs.value) + '</a>' +
+      '</span>'
+    );
+  }
+
+  if (showPk) {
+    items.push(
+      '<span class="ticker-item">' +
+        '<span class="ticker-flag">🇵🇰</span>' +
+        '<span class="ticker-lbl">Pakistan:</span> ' +
+        '<a href="tel:' + escapeHtml(phonePk.tel) + '" class="ticker-link" data-contact-phone-pk>' + escapeHtml(phonePk.value) + '</a>' +
+      '</span>'
+    );
+  }
+
+  if (showEmail) {
+    items.push(
+      '<span class="ticker-item">' +
+        '<span class="ticker-ico">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+            '<rect x="2" y="4" width="20" height="16" rx="2"/>' +
+            '<path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>' +
+          '</svg>' +
+        '</span>' +
+        '<span class="ticker-lbl">Email:</span> ' +
+        '<a href="mailto:' + escapeHtml(email.value) + '" class="ticker-link" data-contact-email>' + escapeHtml(email.value) + '</a>' +
+      '</span>'
+    );
+  }
+
+  // Build repeated unit so each group fills wide monitors seamlessly
+  var unitHtml = items.join(sep);
+  var groupContent = unitHtml + sep + unitHtml + sep + unitHtml + sep;
+
+  track.innerHTML =
+    '<div class="topbar-ticker-group">' + groupContent + '</div>' +
+    '<div class="topbar-ticker-group" aria-hidden="true">' + groupContent + '</div>';
+}
+
 function applySiteSettings(data) {
   if (!data) return;
 
   var phoneUs = data.phone_us;
   var phonePk = data.phone_pk;
+  var email = data.email;
   var wa = data.whatsapp;
 
   // 1. USA Phone Number & Visibility
@@ -1130,6 +1214,9 @@ function applySiteSettings(data) {
     });
     document.querySelectorAll('[data-contact-phone-us-card]').forEach(function(el) {
       el.style.display = phoneUs.visible ? '' : 'none';
+      if (el.tagName === 'A') {
+        el.href = 'tel:' + phoneUs.tel;
+      }
     });
   }
 
@@ -1146,30 +1233,48 @@ function applySiteSettings(data) {
     });
     document.querySelectorAll('[data-contact-phone-pk-card]').forEach(function(el) {
       el.style.display = phonePk.visible ? '' : 'none';
+      if (el.tagName === 'A' && !el.hasAttribute('data-whatsapp-link')) {
+        el.href = 'tel:' + phonePk.tel;
+      }
     });
   }
 
-  // 3. Topbar Separator & Contact Containers
+  // 3. Email Address & Visibility
+  if (email) {
+    document.querySelectorAll('[data-contact-email]').forEach(function(el) {
+      el.textContent = email.value;
+      if (el.tagName === 'A') {
+        el.href = 'mailto:' + email.value;
+      }
+    });
+    document.querySelectorAll('[data-contact-email-wrap]').forEach(function(el) {
+      el.style.display = email.visible ? '' : 'none';
+    });
+    document.querySelectorAll('[data-contact-email-card]').forEach(function(el) {
+      el.style.display = email.visible ? '' : 'none';
+      if (el.tagName === 'A') {
+        el.href = 'mailto:' + email.value;
+      }
+    });
+  }
+
+  // 4. Contact Containers & Footer Visibility
   var showUs = phoneUs ? phoneUs.visible : true;
   var showPk = phonePk ? phonePk.visible : true;
-
-  document.querySelectorAll('[data-topbar-separator]').forEach(function(el) {
-    el.style.display = (showUs && showPk) ? '' : 'none';
-  });
-
-  document.querySelectorAll('[data-topbar-contacts]').forEach(function(el) {
-    el.style.display = (showUs || showPk) ? '' : 'none';
-  });
+  var showEmail = email ? email.visible : true;
 
   document.querySelectorAll('[data-footer-contacts]').forEach(function(el) {
-    el.style.display = (showUs || showPk) ? '' : 'none';
+    el.style.display = (showUs || showPk || showEmail) ? '' : 'none';
   });
 
   document.querySelectorAll('[data-contact-methods-card]').forEach(function(el) {
-    el.style.display = (showUs || showPk) ? '' : 'none';
+    el.style.display = (showUs || showPk || showEmail) ? '' : 'none';
   });
 
-  // 4. WhatsApp Configuration & Floating Widget
+  // 5. Update Moving Contact Topbar Ticker
+  updateTopbarTicker(data);
+
+  // 6. WhatsApp Configuration & Floating Widget
   if (wa) {
     initFloatingWhatsApp(data);
 
